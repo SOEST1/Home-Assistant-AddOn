@@ -1,5 +1,5 @@
 {
-    "name": "eWeLink HA AddOn",
-    "url": "https://gitee.com/Qzhaojia/eWeLink-HA-AddOn",
+    "name": "eWeLink add-ons",
+    "url": "https://gitee.com/eWeLink/Home-Assistant-AddOn",
     "maintainer": "Coolkit"
 }
