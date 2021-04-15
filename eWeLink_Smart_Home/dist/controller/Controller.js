@@ -64,7 +64,7 @@ var Controller = /** @class */ (function () {
         // DIY
         if (type === 1) {
             var tmp = data;
-            if (tmp.a) {
+            if (!tmp.a) {
                 return;
             }
             var diyDevice = new DiyDeviceController_1.default({
@@ -82,7 +82,7 @@ var Controller = /** @class */ (function () {
             var params_1 = formatLanDevice_1.default(data);
             // 如果ip不存在说明该设备可能不支持局域网
             if (!params_1 || !params_1.ip) {
-                console.log('该设备不支持局域网', params_1);
+                console.log('该设备不支持局域网', params_1 === null || params_1 === void 0 ? void 0 : params_1.deviceId);
                 return;
             }
             var old = Controller.getDevice(id);
@@ -125,6 +125,7 @@ var Controller = /** @class */ (function () {
                     apikey: tmp.apikey,
                     extra: tmp.extra,
                     params: tmp.params,
+                    tags: tmp.tags,
                     disabled: disabled,
                 });
                 Controller.deviceMap.set(id, device);

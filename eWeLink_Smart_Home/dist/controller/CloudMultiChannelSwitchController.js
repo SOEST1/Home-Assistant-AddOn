@@ -59,6 +59,7 @@ var channelMap_1 = require("../config/channelMap");
 var CloudMultiChannelSwitchController = /** @class */ (function (_super) {
     __extends(CloudMultiChannelSwitchController, _super);
     function CloudMultiChannelSwitchController(params) {
+        var _a;
         var _this = _super.call(this, params) || this;
         _this.deviceId = params.deviceId;
         _this.entityId = "switch." + params.deviceId;
@@ -68,6 +69,7 @@ var CloudMultiChannelSwitchController = /** @class */ (function (_super) {
         _this.extra = params.extra;
         _this.disabled = params.disabled;
         _this.uiid = params.extra.uiid;
+        _this.channelName = (_a = params.tags) === null || _a === void 0 ? void 0 : _a.ck_channel_name;
         _this.maxChannel = channelMap_1.getMaxChannelByUiid(params.extra.uiid);
         return _this;
     }
@@ -107,13 +109,14 @@ CloudMultiChannelSwitchController.prototype.updateState = function (switches) {
             }
             switches.forEach(function (_a) {
                 var outlet = _a.outlet, status = _a.switch;
+                var name = _this.channelName ? _this.channelName[outlet] : outlet + 1;
                 restApi_1.updateStates(_this.entityId + "_" + (outlet + 1), {
                     entity_id: _this.entityId + "_" + (outlet + 1),
                     state: status,
                     attributes: {
                         restored: true,
                         supported_features: 0,
-                        friendly_name: _this.deviceName + "-" + (outlet + 1),
+                        friendly_name: _this.deviceName + "-" + name,
                         state: status,
                     },
                 });

@@ -52,6 +52,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var coolkit_open_api_1 = __importDefault(require("coolkit-open-api"));
 var dataUtil_1 = require("./dataUtil");
+var generateLovelace_1 = __importDefault(require("./generateLovelace"));
 var getThings_1 = __importDefault(require("./getThings"));
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
     var loginParams, result;
@@ -59,19 +60,22 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
         switch (_a.label) {
             case 0:
                 loginParams = dataUtil_1.getDataSync('user.json', ['login']);
-                if (!loginParams) return [3 /*break*/, 4];
+                if (!loginParams) return [3 /*break*/, 5];
                 return [4 /*yield*/, coolkit_open_api_1.default.user.login(loginParams)];
             case 1:
                 result = _a.sent();
-                if (!(result.error === 0)) return [3 /*break*/, 4];
+                if (!(result.error === 0)) return [3 /*break*/, 5];
                 return [4 /*yield*/, dataUtil_1.saveData('user.json', JSON.stringify(__assign(__assign({}, result.data), { login: loginParams })))];
             case 2:
                 _a.sent();
                 return [4 /*yield*/, getThings_1.default()];
             case 3:
                 _a.sent();
-                _a.label = 4;
-            case 4: return [2 /*return*/];
+                return [4 /*yield*/, generateLovelace_1.default()];
+            case 4:
+                _a.sent();
+                _a.label = 5;
+            case 5: return [2 /*return*/];
         }
     });
 }); });

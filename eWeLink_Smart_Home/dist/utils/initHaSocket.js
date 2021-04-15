@@ -51,6 +51,17 @@ var __read = (this && this.__read) || function (o, n) {
     }
     return ar;
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -68,6 +79,108 @@ var CloudRGBLightStripController_1 = __importDefault(require("../controller/Clou
 var LanMultiChannelSwitchController_1 = __importDefault(require("../controller/LanMultiChannelSwitchController"));
 var CloudTandHModificationController_1 = __importDefault(require("../controller/CloudTandHModificationController"));
 var CloudDoubleColorLightController_1 = __importDefault(require("../controller/CloudDoubleColorLightController"));
+/**
+ *
+ *
+ * @param {string} entity_id 实体id
+ * @param {string} state // on | off
+ * @param {*} res socket 返回的信息主体
+ * @param {{ outlet: number; switch: string }[]} [mutiSwitchState] 可选，控制多通道的全开/全关
+ * @return {*}
+ */
+var handleDeviceByEntityId = function (entity_id, state, res, mutiSwitchState) {
+    var device = Controller_1.default.getDevice(entity_id.replace(/_\d+$/, ''));
+    // DIY
+    if (device instanceof DiyDeviceController_1.default) {
+        device.setSwitch(state);
+    }
+    // LAN
+    if (device instanceof LanSwitchController_1.default) {
+        device.setSwitch(state);
+    }
+    // LAN
+    if (device instanceof LanMultiChannelSwitchController_1.default) {
+        if (mutiSwitchState) {
+            device.setSwitch(mutiSwitchState);
+        }
+        else {
+            var _a = __read(entity_id.split('_'), 2), id = _a[0], outlet = _a[1];
+            device.setSwitch([
+                {
+                    outlet: +outlet - 1,
+                    switch: state,
+                },
+            ]);
+        }
+    }
+    // Cloud
+    if (device instanceof CloudSwitchController_1.default) {
+        device.updateSwitch(state);
+    }
+    if (device instanceof CloudRGBLightController_1.default) {
+        if (state === 'off') {
+            device.updateLight({
+                state: state,
+            });
+            return;
+        }
+        var _b = res.service_data, hs_color = _b.hs_color, _c = _b.brightness_pct, brightness_pct = _c === void 0 ? 0 : _c;
+        var params = device.parseHaData2Ck({ hs_color: hs_color, brightness_pct: brightness_pct, state: state });
+        device.updateLight(params);
+    }
+    if (device instanceof CloudDimmingController_1.default) {
+        var brightness_pct = res.service_data.brightness_pct;
+        device.updateLight({
+            switch: state,
+            bright: brightness_pct,
+        });
+    }
+    if (device instanceof CloudPowerDetectionSwitchController_1.default) {
+        device.updateSwitch(state);
+    }
+    if (device instanceof CloudTandHModificationController_1.default) {
+        device.updateSwitch(state);
+    }
+    if (device instanceof CloudMultiChannelSwitchController_1.default) {
+        if (mutiSwitchState) {
+            device.updateSwitch(mutiSwitchState);
+        }
+        else {
+            var _d = __read(entity_id.split('_'), 2), id = _d[0], outlet = _d[1];
+            device.updateSwitch([
+                {
+                    outlet: +outlet - 1,
+                    switch: state,
+                },
+            ]);
+        }
+    }
+    if (device instanceof CloudRGBLightStripController_1.default) {
+        if (state === 'off') {
+            device.updateLight({
+                switch: state,
+            });
+            return;
+        }
+        var _e = res.service_data, hs_color = _e.hs_color, color_temp = _e.color_temp, _f = _e.brightness_pct, brightness_pct = _f === void 0 ? 0 : _f;
+        var params = device.parseHaData2Ck({ hs_color: hs_color, brightness_pct: brightness_pct, state: state });
+        device.updateLight(params);
+    }
+    if (device instanceof CloudDoubleColorLightController_1.default) {
+        if (state === 'off') {
+            device.updateLight({
+                switch: state,
+            });
+            return;
+        }
+        var _g = res.service_data, color_temp = _g.color_temp, brightness_pct = _g.brightness_pct;
+        device.updateLight({
+            switch: state,
+            ct: color_temp,
+            br: brightness_pct,
+        });
+    }
+};
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
     var res, err_1;
     return __generator(this, function (_a) {
@@ -80,93 +193,53 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                 if (res === 0) {
                     HASocketClass_1.default.subscribeEvents('call_service');
                     HASocketClass_1.default.handleEvent('call_service', function (res) {
+                        var e_1, _a;
                         console.log('HA触发call_service事件', res);
                         var entity_id = res.service_data.entity_id, service = res.service;
                         var state = service === 'turn_off' ? 'off' : 'on';
-                        if (entity_id) {
-                            var device = Controller_1.default.getDevice(entity_id.replace(/_\d+$/, ''));
-                            // DIY
-                            if (device instanceof DiyDeviceController_1.default) {
-                                device.setSwitch(state);
-                            }
-                            // LAN
-                            if (device instanceof LanSwitchController_1.default) {
-                                device.setSwitch(state);
-                            }
-                            // LAN
-                            if (device instanceof LanMultiChannelSwitchController_1.default) {
-                                var _a = __read(entity_id.split('_'), 2), id = _a[0], outlet = _a[1];
-                                var switches = [
-                                    {
-                                        outlet: +outlet - 1,
-                                        switch: state,
-                                    },
-                                ];
-                                device.setSwitch(switches);
-                            }
-                            // Cloud
-                            if (device instanceof CloudSwitchController_1.default) {
-                                device.updateSwitch(state);
-                            }
-                            if (device instanceof CloudRGBLightController_1.default) {
-                                if (state === 'off') {
-                                    device.updateLight({
-                                        state: state,
-                                    });
-                                    return;
+                        if (Array.isArray(entity_id)) {
+                            // 暂存多通道设备
+                            var tmpMap_1 = new Map();
+                            entity_id.forEach(function (item) {
+                                var _a = __read(item.split('_'), 2), deviceid = _a[0], outlet = _a[1];
+                                var device = Controller_1.default.getDevice(deviceid);
+                                // 一次性控制多通道设备多个通道
+                                if (device instanceof LanMultiChannelSwitchController_1.default || device instanceof CloudMultiChannelSwitchController_1.default) {
+                                    if (tmpMap_1.has(deviceid)) {
+                                        tmpMap_1.get(deviceid).push({
+                                            outlet: outlet - 1,
+                                            switch: state,
+                                        });
+                                    }
+                                    else {
+                                        tmpMap_1.set(deviceid, [
+                                            {
+                                                outlet: outlet - 1,
+                                                switch: state,
+                                            },
+                                        ]);
+                                    }
                                 }
-                                var _b = res.service_data, hs_color = _b.hs_color, _c = _b.brightness_pct, brightness_pct = _c === void 0 ? 0 : _c;
-                                var params = device.parseHaData2Ck({ hs_color: hs_color, brightness_pct: brightness_pct, state: state });
-                                device.updateLight(params);
-                            }
-                            if (device instanceof CloudDimmingController_1.default) {
-                                var brightness_pct = res.service_data.brightness_pct;
-                                device.updateLight({
-                                    switch: state,
-                                    bright: brightness_pct,
-                                });
-                            }
-                            if (device instanceof CloudPowerDetectionSwitchController_1.default) {
-                                device.updateSwitch(state);
-                            }
-                            if (device instanceof CloudTandHModificationController_1.default) {
-                                device.updateSwitch(state);
-                            }
-                            if (device instanceof CloudMultiChannelSwitchController_1.default) {
-                                var _d = __read(entity_id.split('_'), 2), id = _d[0], outlet = _d[1];
-                                var switches = [
-                                    {
-                                        outlet: +outlet - 1,
-                                        switch: state,
-                                    },
-                                ];
-                                device.updateSwitch(switches);
-                            }
-                            if (device instanceof CloudRGBLightStripController_1.default) {
-                                if (state === 'off') {
-                                    device.updateLight({
-                                        switch: state,
-                                    });
-                                    return;
+                                else {
+                                    handleDeviceByEntityId(item, state, res);
                                 }
-                                var _e = res.service_data, hs_color = _e.hs_color, color_temp = _e.color_temp, _f = _e.brightness_pct, brightness_pct = _f === void 0 ? 0 : _f;
-                                var params = device.parseHaData2Ck({ hs_color: hs_color, brightness_pct: brightness_pct, state: state });
-                                device.updateLight(params);
-                            }
-                            if (device instanceof CloudDoubleColorLightController_1.default) {
-                                if (state === 'off') {
-                                    device.updateLight({
-                                        switch: state,
-                                    });
-                                    return;
+                            });
+                            try {
+                                for (var _b = __values(tmpMap_1.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
+                                    var _d = __read(_c.value, 2), id = _d[0], mutiSwitchState = _d[1];
+                                    handleDeviceByEntityId(id, state, res, mutiSwitchState);
                                 }
-                                var _g = res.service_data, color_temp = _g.color_temp, brightness_pct = _g.brightness_pct;
-                                device.updateLight({
-                                    switch: state,
-                                    ct: color_temp,
-                                    br: brightness_pct,
-                                });
                             }
+                            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                            finally {
+                                try {
+                                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                                }
+                                finally { if (e_1) throw e_1.error; }
+                            }
+                        }
+                        if (typeof entity_id === 'string') {
+                            handleDeviceByEntityId(entity_id, state, res);
                         }
                     });
                     HASocketClass_1.default.subscribeEvents('state_changed');

@@ -39,62 +39,61 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerService = exports.removeStates = exports.updateStates = exports.getStateByEntityId = void 0;
-var axios_1 = __importDefault(require("axios"));
-var auth_1 = require("../config/auth");
-var url_1 = require("../config/url");
-var restRequest = axios_1.default.create({
-    baseURL: url_1.HaRestURL,
-    headers: {
-        Authorization: "Bearer " + auth_1.HaToken,
-    },
-});
-var getStateByEntityId = function (entityId) { return __awaiter(void 0, void 0, void 0, function () {
+exports.getOTAinfoAPI = exports.updateChannelNameAPI = exports.updateDeviceNameAPI = void 0;
+var coolkit_open_api_1 = __importDefault(require("coolkit-open-api"));
+/**
+ *
+ *
+ * @param {string} deviceid
+ * @param {string} name
+ * @description 修改设备名称
+ * @return {*}
+ */
+var updateDeviceNameAPI = function (deviceid, name) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'GET',
-                url: "/api/states/" + entityId,
-            }).catch(function (e) {
-                console.log('获取HA实体出错：', entityId);
-            })];
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, coolkit_open_api_1.default.device.updateDeviceInfo({
+                    deviceid: deviceid,
+                    name: name,
+                })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
 }); };
-exports.getStateByEntityId = getStateByEntityId;
-var updateStates = function (entityId, data) { return __awaiter(void 0, void 0, void 0, function () {
+exports.updateDeviceNameAPI = updateDeviceNameAPI;
+/**
+ *
+ *
+ * @param {string} deviceid
+ * @param {any} tags
+ * @description 修改子通道名称
+ * @return {*}
+ */
+var updateChannelNameAPI = function (deviceid, tags) { return __awaiter(void 0, void 0, void 0, function () {
+    var res;
     return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'POST',
-                url: "/api/states/" + entityId,
-                data: data,
-            }).catch(function (e) {
-                console.log('更新设备到HA出错：', entityId, '\ndata: ', data);
-            })];
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, coolkit_open_api_1.default.device.updateDeviceTag({
+                    deviceid: deviceid,
+                    type: 'merge',
+                    tags: tags,
+                })];
+            case 1:
+                res = _a.sent();
+                console.log('Jia ~ file: ckApi.ts ~ line 32 ~ updateChannelNameAPI ~ res', JSON.stringify(res, null, 2));
+                return [2 /*return*/, res];
+        }
     });
 }); };
-exports.updateStates = updateStates;
-var removeStates = function (entityId) { return __awaiter(void 0, void 0, void 0, function () {
+exports.updateChannelNameAPI = updateChannelNameAPI;
+var getOTAinfoAPI = function (list) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'DELETE',
-                url: "/api/states/" + entityId,
-            }).catch(function (e) {
-                console.log('删除HA实体出错：', entityId);
-            })];
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, coolkit_open_api_1.default.device.getOtaInfo({
+                    deviceInfoList: list,
+                })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
 }); };
-exports.removeStates = removeStates;
-var registerService = function (domain, service) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'POST',
-                url: "/api/services/" + domain + "/" + service,
-                data: {
-                    entity_id: 'switch.Ceiling',
-                },
-            }).catch(function (e) {
-                console.log('注册服务', domain, ':', service, '出错');
-                console.log('Jia ~ file: restApi.ts ~ line 55 ~ registerService ~ e', e);
-            })];
-    });
-}); };
-exports.registerService = registerService;
+exports.getOTAinfoAPI = getOTAinfoAPI;

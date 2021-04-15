@@ -7,6 +7,10 @@ var channelMap = new Map([
     [4, 4],
     [7, 2],
     [8, 3],
+    [77, 1],
+    [112, 1],
+    [113, 2],
+    [114, 3],
 ]);
 var getMaxChannelByUiid = function (uiid) {
     return channelMap.get(uiid);

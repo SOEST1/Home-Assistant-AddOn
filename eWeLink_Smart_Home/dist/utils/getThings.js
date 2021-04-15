@@ -56,7 +56,7 @@ var CloudDoubleColorLightController_1 = __importDefault(require("../controller/C
 var LanSwitchController_1 = __importDefault(require("../controller/LanSwitchController"));
 // 获取设备并同步到HA
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, error, data, thingList, i, item, _b, extra, deviceid, name_1, params, devicekey, apikey, online, old, decryptData, decryptData, device, status_1, power, voltage, current, data_1;
+    var _a, error, data, thingList, i, item, _b, extra, deviceid, name_1, params, devicekey, apikey, online, tags, old, decryptData, decryptData, device, status_1, power, voltage, current, data_1;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0: return [4 /*yield*/, coolkit_open_api_1.default.device.getThingList({
@@ -70,7 +70,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                     for (i = 0; i < thingList.length; i++) {
                         item = thingList[i];
                         if (item.itemType < 3) {
-                            _b = item.itemData, extra = _b.extra, deviceid = _b.deviceid, name_1 = _b.name, params = _b.params, devicekey = _b.devicekey, apikey = _b.apikey, online = _b.online;
+                            _b = item.itemData, extra = _b.extra, deviceid = _b.deviceid, name_1 = _b.name, params = _b.params, devicekey = _b.devicekey, apikey = _b.apikey, online = _b.online, tags = _b.tags;
                             if (!online) {
                                 continue;
                             }
@@ -85,6 +85,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                 old.selfApikey = apikey;
                                 old.deviceName = name_1;
                                 old.extra = extra;
+                                old.params = params;
                                 if (old instanceof LanSwitchController_1.default) {
                                     decryptData = old.parseEncryptedData();
                                     if (decryptData) {
@@ -92,6 +93,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                     }
                                 }
                                 if (old instanceof LanMultiChannelSwitchController_1.default) {
+                                    old.channelName = tags === null || tags === void 0 ? void 0 : tags.ck_channel_name;
                                     old.maxChannel = channelMap_1.getMaxChannelByUiid(extra.uiid);
                                     decryptData = old.parseEncryptedData();
                                     if (decryptData) {

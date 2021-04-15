@@ -39,62 +39,57 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerService = exports.removeStates = exports.updateStates = exports.getStateByEntityId = void 0;
-var axios_1 = __importDefault(require("axios"));
-var auth_1 = require("../config/auth");
-var url_1 = require("../config/url");
-var restRequest = axios_1.default.create({
-    baseURL: url_1.HaRestURL,
-    headers: {
-        Authorization: "Bearer " + auth_1.HaToken,
-    },
-});
-var getStateByEntityId = function (entityId) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'GET',
-                url: "/api/states/" + entityId,
-            }).catch(function (e) {
-                console.log('获取HA实体出错：', entityId);
-            })];
+var coolkit_open_api_1 = __importDefault(require("coolkit-open-api"));
+var restApi_1 = require("../apis/restApi");
+var Controller_1 = __importDefault(require("../controller/Controller"));
+var DiyDeviceController_1 = __importDefault(require("../controller/DiyDeviceController"));
+exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, error, data, thingList, i, item, _b, extra, deviceid, name_1, params, old;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0: return [4 /*yield*/, coolkit_open_api_1.default.user.login({
+                    countryCode: '+86',
+                    phoneNumber: '+8618875224960',
+                    lang: 'cn',
+                    password: 'coolkit666',
+                })];
+            case 1:
+                _c.sent();
+                return [4 /*yield*/, coolkit_open_api_1.default.device.getThingList({
+                        lang: 'cn',
+                    })];
+            case 2:
+                _a = _c.sent(), error = _a.error, data = _a.data;
+                if (error === 0) {
+                    thingList = data.thingList;
+                    for (i = 0; i < thingList.length; i++) {
+                        item = thingList[i];
+                        if (item.itemType < 3) {
+                            _b = item.itemData, extra = _b.extra, deviceid = _b.deviceid, name_1 = _b.name, params = _b.params;
+                            old = Controller_1.default.getDevice(deviceid);
+                            if (old instanceof DiyDeviceController_1.default) {
+                                continue;
+                            }
+                            Controller_1.default.setDevice({
+                                id: deviceid,
+                                type: 4,
+                                data: item.itemData,
+                            });
+                            if ((extra === null || extra === void 0 ? void 0 : extra.uiid) === 1) {
+                                restApi_1.updateStates("switch." + deviceid, {
+                                    entity_id: "switch." + deviceid,
+                                    state: params.switch,
+                                    attributes: {
+                                        restored: true,
+                                        supported_features: 0,
+                                        friendly_name: name_1,
+                                    },
+                                });
+                            }
+                        }
+                    }
+                }
+                return [2 /*return*/];
+        }
     });
-}); };
-exports.getStateByEntityId = getStateByEntityId;
-var updateStates = function (entityId, data) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'POST',
-                url: "/api/states/" + entityId,
-                data: data,
-            }).catch(function (e) {
-                console.log('更新设备到HA出错：', entityId, '\ndata: ', data);
-            })];
-    });
-}); };
-exports.updateStates = updateStates;
-var removeStates = function (entityId) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'DELETE',
-                url: "/api/states/" + entityId,
-            }).catch(function (e) {
-                console.log('删除HA实体出错：', entityId);
-            })];
-    });
-}); };
-exports.removeStates = removeStates;
-var registerService = function (domain, service) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'POST',
-                url: "/api/services/" + domain + "/" + service,
-                data: {
-                    entity_id: 'switch.Ceiling',
-                },
-            }).catch(function (e) {
-                console.log('注册服务', domain, ':', service, '出错');
-                console.log('Jia ~ file: restApi.ts ~ line 55 ~ registerService ~ e', e);
-            })];
-    });
-}); };
-exports.registerService = registerService;
+}); });

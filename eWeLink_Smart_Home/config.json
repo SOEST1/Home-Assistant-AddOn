@@ -1,6 +1,6 @@
 {
     "name": "eWeLink Smart Home",
-    "version": "1.0-beta",
+    "version": "1.1-beta",
     "slug": "ewelink_smart_home_slug",
     "description": "connect eWeLink with home-assistant",
     "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
@@ -23,9 +23,11 @@
     "ingress_port": 3000,
     "ingress_entry": "",
     "options": {
-        "auth": ""
+        "auth": "",
+        "home_assistant_port": 8123
     },
     "schema": {
-        "auth": "str"
+        "auth": "str",
+        "home_assistant_port": "int"
     }
 }

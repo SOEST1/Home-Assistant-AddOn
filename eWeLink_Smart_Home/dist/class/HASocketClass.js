@@ -51,12 +51,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ws_1 = __importDefault(require("ws"));
-var config_1 = require("../config/config");
 var auth_1 = require("../config/auth");
+var url_1 = require("../config/url");
 var HaSocket = /** @class */ (function () {
     function HaSocket() {
         this.count = 1;
-        this.client = new ws_1.default(config_1.HaSocketURL);
+        this.client = new ws_1.default(url_1.HaSocketURL);
     }
     HaSocket.createInstance = function () {
         if (!HaSocket.instance) {
@@ -123,7 +123,6 @@ var HaSocket = /** @class */ (function () {
                 return [2 /*return*/, new Promise(function (resolve) {
                         _this.client.send(JSON.stringify(__assign({ id: cur }, data)));
                         _this.client.on('message', (handler = function (res) {
-                            console.log('Jia ~ file: HASocketClass.ts ~ line 86 ~ HaSocket ~ returnnewPromise ~ res', res);
                             try {
                                 var data_1 = JSON.parse(res);
                                 if (data_1.id === cur) {
@@ -151,6 +150,22 @@ var HaSocket = /** @class */ (function () {
             id: this.count++,
             type: 'get_config',
         }));
+    };
+    HaSocket.prototype.getLovelace = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.query({
+                            type: 'lovelace/config',
+                        })];
+                    case 1:
+                        res = _a.sent();
+                        console.log('Jia ~ file: HASocketClass.ts ~ line 125 ~ HaSocket ~ getLovelace ~ res', res);
+                        return [2 /*return*/, res];
+                }
+            });
+        });
     };
     return HaSocket;
 }());

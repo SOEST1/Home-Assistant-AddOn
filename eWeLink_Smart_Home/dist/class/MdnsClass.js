@@ -104,6 +104,7 @@ var Mdns = /** @class */ (function () {
                     return;
                 }
                 if (((_a = tmp.txt) === null || _a === void 0 ? void 0 : _a.type) === 'diy_plug') {
+                    console.log('发现diy设备');
                     var diyDevice = Controller_1.default.setDevice({
                         id: key,
                         data: tmp,

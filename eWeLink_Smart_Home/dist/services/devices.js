@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -66,8 +77,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateDeviceName = exports.disableDevice = exports.getDevices = void 0;
-var coolkit_open_api_1 = __importDefault(require("coolkit-open-api"));
+exports.updateDiyDevice = exports.upgradeDevice = exports.getOTAinfo = exports.proxy2ws = exports.updateChannelName = exports.updateDeviceName = exports.disableDevice = exports.getDeviceById = exports.getDevices = void 0;
+var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var Controller_1 = __importDefault(require("../controller/Controller"));
 var getThings_1 = __importDefault(require("../utils/getThings"));
 var sleep_1 = __importDefault(require("../utils/sleep"));
@@ -78,6 +89,9 @@ var restApi_1 = require("../apis/restApi");
 var CloudTandHModificationController_1 = __importDefault(require("../controller/CloudTandHModificationController"));
 var CloudMultiChannelSwitchController_1 = __importDefault(require("../controller/CloudMultiChannelSwitchController"));
 var LanMultiChannelSwitchController_1 = __importDefault(require("../controller/LanMultiChannelSwitchController"));
+var ckApi_1 = require("../apis/ckApi");
+var diyDeviceApi_1 = require("../apis/diyDeviceApi");
+var DiyDeviceController_1 = __importDefault(require("../controller/DiyDeviceController"));
 var mdns = initMdns_1.default();
 var getDevices = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var type, refresh, _a, cloud, lan, diy, data, _b, _c, item, err_1;
@@ -152,6 +166,34 @@ var getDevices = function (req, res) { return __awaiter(void 0, void 0, void 0, 
     });
 }); };
 exports.getDevices = getDevices;
+var getDeviceById = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, device;
+    return __generator(this, function (_a) {
+        try {
+            id = req.query.id;
+            device = Controller_1.default.getDevice(id);
+            if (!device) {
+                res.json({
+                    error: 402,
+                    msg: 'device not found',
+                });
+            }
+            res.json({
+                error: 0,
+                data: formatDevice_1.default(device),
+            });
+        }
+        catch (err) {
+            console.log('Jia ~ file: devices.ts ~ line 22 ~ getDevices ~ err', err);
+            res.json({
+                error: 500,
+                data: null,
+            });
+        }
+        return [2 /*return*/];
+    });
+}); };
+exports.getDeviceById = getDeviceById;
 var disableDevice = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, disabled, id, device, error, i, i, err_2;
     return __generator(this, function (_b) {
@@ -249,10 +291,7 @@ var updateDeviceName = function (req, res) { return __awaiter(void 0, void 0, vo
                         msg: 'not such device',
                     });
                 }
-                return [4 /*yield*/, coolkit_open_api_1.default.device.updateDeviceInfo({
-                        deviceid: id,
-                        name: newName,
-                    })];
+                return [4 /*yield*/, ckApi_1.updateDeviceNameAPI(id, newName)];
             case 1:
                 error = (_b.sent()).error;
                 if (error === 0) {
@@ -284,3 +323,220 @@ var updateDeviceName = function (req, res) { return __awaiter(void 0, void 0, vo
     });
 }); };
 exports.updateDeviceName = updateDeviceName;
+var updateChannelName = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, tags, id, error, err_4;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                _a = req.body, tags = _a.tags, id = _a.id;
+                return [4 /*yield*/, ckApi_1.updateChannelNameAPI(id, {
+                        ck_channel_name: tags,
+                    })];
+            case 1:
+                error = (_b.sent()).error;
+                if (error === 0) {
+                    res.json({
+                        error: 0,
+                        data: null,
+                    });
+                }
+                else {
+                    res.json({
+                        error: 500,
+                        data: null,
+                    });
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                err_4 = _b.sent();
+                console.log('Jia ~ file: devices.ts ~ line 71 ~ disableDevice ~ err', err_4);
+                res.json({
+                    error: 500,
+                    data: null,
+                });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.updateChannelName = updateChannelName;
+var proxy2ws = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, apikey, id, params, result, error, err_5;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                _a = req.body, apikey = _a.apikey, id = _a.id, params = _a.params;
+                return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                        deviceApikey: apikey,
+                        deviceid: id,
+                        params: params,
+                    })];
+            case 1:
+                result = _b.sent();
+                console.log('Jia ~ file: devices.ts ~ line 222 ~ proxy2ws ~ result', result);
+                error = result.error;
+                if (error === 0) {
+                    res.json({
+                        error: 0,
+                        data: null,
+                    });
+                }
+                else {
+                    res.json({
+                        error: error,
+                        data: null,
+                    });
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                err_5 = _b.sent();
+                res.json({
+                    error: 500,
+                    data: null,
+                });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.proxy2ws = proxy2ws;
+var getOTAinfo = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var list, _a, error, data, err_6;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                list = req.body.list;
+                console.log('Jia ~ file: devices.ts ~ line 246 ~ getOTAinfo ~ list', list);
+                return [4 /*yield*/, ckApi_1.getOTAinfoAPI(list)];
+            case 1:
+                _a = _b.sent(), error = _a.error, data = _a.data;
+                if (error === 0) {
+                    res.json({
+                        error: 0,
+                        data: data,
+                    });
+                }
+                else {
+                    res.json({
+                        error: 500,
+                        data: null,
+                    });
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                err_6 = _b.sent();
+                res.json({
+                    error: 500,
+                    data: null,
+                });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.getOTAinfo = getOTAinfo;
+var upgradeDevice = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, apikey, id, params, result, error, err_7;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                _a = req.body, apikey = _a.apikey, id = _a.id, params = _a.params;
+                return [4 /*yield*/, coolkit_ws_1.default.upgradeThing({
+                        deviceApikey: apikey,
+                        deviceid: id,
+                        params: params,
+                    })];
+            case 1:
+                result = _b.sent();
+                console.log('Jia ~ file: devices.ts ~ line 275 ~ upgradeDevice ~ result', result);
+                error = result.error;
+                if (error === 0) {
+                    res.json({
+                        error: 0,
+                        data: null,
+                    });
+                }
+                else {
+                    res.json({
+                        error: error,
+                        data: null,
+                    });
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                err_7 = _b.sent();
+                res.json({
+                    error: 500,
+                    data: null,
+                });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.upgradeDevice = upgradeDevice;
+var updateDiyDevice = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, type, id, params, device, result, err_8;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 10, , 11]);
+                _a = req.body, type = _a.type, id = _a.id, params = _a.params;
+                device = Controller_1.default.getDevice(id);
+                if (!(device instanceof DiyDeviceController_1.default)) return [3 /*break*/, 9];
+                result = void 0;
+                if (!(type === 'switch')) return [3 /*break*/, 2];
+                return [4 /*yield*/, diyDeviceApi_1.updateDiySwitchAPI(__assign({ deviceid: id, ip: device.ip, port: device.port }, params))];
+            case 1:
+                result = _b.sent();
+                _b.label = 2;
+            case 2:
+                if (!(type === 'startup')) return [3 /*break*/, 4];
+                return [4 /*yield*/, diyDeviceApi_1.updateDiyStartupAPI(__assign({ deviceid: id, ip: device.ip, port: device.port }, params))];
+            case 3:
+                result = _b.sent();
+                _b.label = 4;
+            case 4:
+                if (!(type === 'pulse')) return [3 /*break*/, 6];
+                return [4 /*yield*/, diyDeviceApi_1.updateDiyPulseAPI(__assign({ deviceid: id, ip: device.ip, port: device.port }, params))];
+            case 5:
+                result = _b.sent();
+                _b.label = 6;
+            case 6:
+                if (!(type === 'sledOnline')) return [3 /*break*/, 8];
+                return [4 /*yield*/, diyDeviceApi_1.updateDiySledOnlineAPI(__assign({ deviceid: id, ip: device.ip, port: device.port }, params))];
+            case 7:
+                result = _b.sent();
+                _b.label = 8;
+            case 8:
+                console.log('Jia ~ file: devices.ts ~ line 320 ~ updateDiyDevice ~ result', result);
+                if (result && result.error === 0) {
+                    res.json({
+                        error: 0,
+                        data: null,
+                    });
+                }
+                else {
+                    res.json({
+                        error: result.error,
+                        data: null,
+                    });
+                }
+                _b.label = 9;
+            case 9: return [3 /*break*/, 11];
+            case 10:
+                err_8 = _b.sent();
+                res.json({
+                    error: 500,
+                    data: null,
+                });
+                return [3 /*break*/, 11];
+            case 11: return [2 /*return*/];
+        }
+    });
+}); };
+exports.updateDiyDevice = updateDiyDevice;

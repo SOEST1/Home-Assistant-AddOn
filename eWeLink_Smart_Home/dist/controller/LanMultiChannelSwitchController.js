@@ -108,13 +108,14 @@ LanMultiChannelSwitchController.prototype.updateState = function (switches) {
             }
             switches.forEach(function (_a) {
                 var outlet = _a.outlet, status = _a.switch;
+                var name = _this.channelName ? _this.channelName[outlet] : outlet + 1;
                 restApi_1.updateStates(_this.entityId + "_" + (outlet + 1), {
                     entity_id: _this.entityId + "_" + (outlet + 1),
                     state: status,
                     attributes: {
                         restored: true,
                         supported_features: 0,
-                        friendly_name: _this.deviceName + "-" + (outlet + 1),
+                        friendly_name: _this.deviceName + "-" + name,
                         state: status,
                     },
                 });

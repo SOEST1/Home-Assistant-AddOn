@@ -63,12 +63,13 @@ var CloudMultiChannelSwitchController_1 = __importDefault(require("../controller
 var CloudRGBLightStripController_1 = __importDefault(require("../controller/CloudRGBLightStripController"));
 var restApi_1 = require("../apis/restApi");
 var CloudDoubleColorLightController_1 = __importDefault(require("../controller/CloudDoubleColorLightController"));
-var at = dataUtil_1.getDataSync('user.json', ['at']);
 var apikey = dataUtil_1.getDataSync('user.json', ['user', 'apikey']);
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
+    var at;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
+                at = dataUtil_1.getDataSync('user.json', ['at']);
                 if (!at || !apikey) {
                     return [2 /*return*/, -1];
                 }
@@ -80,6 +81,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                     })];
             case 1:
                 _a.sent();
+                console.log('Jia ~ file: initCkWs.ts ~ line 29 ~ at', at);
                 coolkit_ws_1.default.on('message', function (ws) { return __awaiter(void 0, void 0, void 0, function () {
                     var type, data, tmp, device, _a, currentTemperature, currentHumidity, state, params, _b, bright, status_1, _c, current, voltage, power, status_2, switches, online, res, error_1;
                     return __generator(this, function (_d) {

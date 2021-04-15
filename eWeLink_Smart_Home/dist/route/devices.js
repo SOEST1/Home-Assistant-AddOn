@@ -11,6 +11,12 @@ router.get('/refresh', function (req, res, next) {
     req.body.refresh = true;
     next();
 }, devices_1.getDevices);
+router.get('/device', devices_1.getDeviceById);
+router.post('/device/upgrade', devices_1.upgradeDevice);
 router.post('/disabled', devices_1.disableDevice);
 router.post('/updateName', devices_1.updateDeviceName);
+router.post('/updateChannelName', devices_1.updateChannelName);
+router.post('/proxy2ws', devices_1.proxy2ws);
+router.post('/getOTAinfo', devices_1.getOTAinfo);
+router.post('/diy', devices_1.updateDiyDevice);
 exports.default = router;

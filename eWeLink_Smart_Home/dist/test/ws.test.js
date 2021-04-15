@@ -39,62 +39,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerService = exports.removeStates = exports.updateStates = exports.getStateByEntityId = void 0;
-var axios_1 = __importDefault(require("axios"));
-var auth_1 = require("../config/auth");
-var url_1 = require("../config/url");
-var restRequest = axios_1.default.create({
-    baseURL: url_1.HaRestURL,
-    headers: {
-        Authorization: "Bearer " + auth_1.HaToken,
-    },
-});
-var getStateByEntityId = function (entityId) { return __awaiter(void 0, void 0, void 0, function () {
+var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
+var app_1 = require("../config/app");
+var dataUtil_1 = require("../utils/dataUtil");
+(function () { return __awaiter(void 0, void 0, void 0, function () {
+    var at, apikey, result;
     return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'GET',
-                url: "/api/states/" + entityId,
-            }).catch(function (e) {
-                console.log('获取HA实体出错：', entityId);
-            })];
+        switch (_a.label) {
+            case 0:
+                at = dataUtil_1.getDataSync('user.json', ['at']);
+                apikey = dataUtil_1.getDataSync('user.json', ['user', 'apikey']);
+                return [4 /*yield*/, coolkit_ws_1.default.init({
+                        appid: app_1.appId,
+                        secret: app_1.appSecret,
+                        at: at,
+                        apikey: apikey,
+                    })];
+            case 1:
+                result = _a.sent();
+                console.log('连接的结果: ', result);
+                return [2 /*return*/];
+        }
     });
-}); };
-exports.getStateByEntityId = getStateByEntityId;
-var updateStates = function (entityId, data) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'POST',
-                url: "/api/states/" + entityId,
-                data: data,
-            }).catch(function (e) {
-                console.log('更新设备到HA出错：', entityId, '\ndata: ', data);
-            })];
-    });
-}); };
-exports.updateStates = updateStates;
-var removeStates = function (entityId) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'DELETE',
-                url: "/api/states/" + entityId,
-            }).catch(function (e) {
-                console.log('删除HA实体出错：', entityId);
-            })];
-    });
-}); };
-exports.removeStates = removeStates;
-var registerService = function (domain, service) { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, restRequest({
-                method: 'POST',
-                url: "/api/services/" + domain + "/" + service,
-                data: {
-                    entity_id: 'switch.Ceiling',
-                },
-            }).catch(function (e) {
-                console.log('注册服务', domain, ':', service, '出错');
-                console.log('Jia ~ file: restApi.ts ~ line 55 ~ registerService ~ e', e);
-            })];
-    });
-}); };
-exports.registerService = registerService;
+}); })();
