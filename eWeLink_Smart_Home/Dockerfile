@@ -2,7 +2,7 @@
 # FROM $BUILD_FROM
 
 ARG registry-mirrors=["http://hub-mirror.c.163.com"]
-FROM node:current-alpine3.13
+FROM node:14-slim
 RUN mkdir -p /workspace/node_modules
 COPY ["./dist", "./package.json", "/workspace/"]
 WORKDIR /workspace

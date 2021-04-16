@@ -70,9 +70,7 @@ var initCkWs_1 = __importDefault(require("./utils/initCkWs"));
 var initHaSocket_1 = __importDefault(require("./utils/initHaSocket"));
 var initCkApi_1 = __importDefault(require("./utils/initCkApi"));
 var app_1 = require("./config/app");
-var sleep_1 = __importDefault(require("./utils/sleep"));
 var config_1 = require("./config/config");
-var serviceRegistered_1 = __importDefault(require("./utils/serviceRegistered"));
 coolkit_open_api_1.default.init({
     appId: app_1.appId,
     appSecret: app_1.appSecret,
@@ -86,12 +84,12 @@ coolkit_open_api_1.default.init({
                 return [4 /*yield*/, initCkApi_1.default()];
             case 1:
                 _a.sent(); // 初始化v2接口并保持登录
-                serviceRegistered_1.default(); // 注册HA相关服务
-                return [4 /*yield*/, sleep_1.default(3000)];
-            case 2:
-                _a.sent();
+                // serviceRegistered(); // 注册HA相关服务
+                // await sleep(3000);
                 return [4 /*yield*/, initCkWs_1.default()];
-            case 3:
+            case 2:
+                // serviceRegistered(); // 注册HA相关服务
+                // await sleep(3000);
                 _a.sent(); // 跟易微联Socket建立连接
                 return [2 /*return*/];
         }

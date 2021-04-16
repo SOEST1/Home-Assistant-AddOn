@@ -94,6 +94,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                 if (!tmp.deviceid) {
                                     return [2 /*return*/];
                                 }
+                                console.log('接受到CKWS消息:\n', data);
                                 device = Controller_1.default.getDevice(tmp.deviceid);
                                 if (tmp.action === 'update') {
                                     if (device instanceof CloudSwitchController_1.default) {

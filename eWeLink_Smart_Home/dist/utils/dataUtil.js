@@ -45,7 +45,7 @@ var path_1 = __importDefault(require("path"));
 var lodash_1 = __importDefault(require("lodash"));
 var config_1 = require("../config/config");
 var basePath = path_1.default.join('/data');
-if (config_1.debugMode) {
+if (config_1.debugMode || !config_1.isSupervisor) {
     basePath = path_1.default.join(__dirname, '../data');
 }
 var getDataSync = function (fileName, namePath) {

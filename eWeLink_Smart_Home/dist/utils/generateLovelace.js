@@ -63,7 +63,7 @@ var generateLovelace = function () { return __awaiter(void 0, void 0, void 0, fu
             case 0: return [4 /*yield*/, HASocketClass_1.default.getLovelace()];
             case 1:
                 res = _d.sent();
-                if (!Array.isArray(res.views)) return [3 /*break*/, 3];
+                if (!(res && Array.isArray(res.views))) return [3 /*break*/, 3];
                 title = res.title, views = res.views;
                 lovelace = { path: '', title: 'eWeLink Smart Home', badges: [], cards: [] };
                 tmp = lodash_1.default.findIndex(views, { title: 'eWeLink Smart Home' });

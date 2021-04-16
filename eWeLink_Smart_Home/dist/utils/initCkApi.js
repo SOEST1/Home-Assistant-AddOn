@@ -65,6 +65,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
             case 1:
                 result = _a.sent();
                 if (!(result.error === 0)) return [3 /*break*/, 5];
+                console.log('重新登录成功！');
                 return [4 /*yield*/, dataUtil_1.saveData('user.json', JSON.stringify(__assign(__assign({}, result.data), { login: loginParams })))];
             case 2:
                 _a.sent();
