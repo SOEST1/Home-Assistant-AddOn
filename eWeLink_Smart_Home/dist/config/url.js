@@ -8,7 +8,7 @@ if (!config_1.debugMode && config_1.isSupervisor) {
     url = dataUtil_1.getDataSync('options.json', ['home_assistant_url']);
 }
 if (!config_1.debugMode && !config_1.isSupervisor) {
-    var url_1 = process.env.HA_URL;
+    url = process.env.HA_URL;
 }
 if (!url) {
     throw new Error('You have to set the HA_URL');
