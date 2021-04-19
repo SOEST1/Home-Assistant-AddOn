@@ -1,5 +1,9 @@
 # Home-Assistant-AddOn
 
+## 通过 AddOn 安装
+
+-   参考[Wiki](https://gitee.com/eWeLink/Home-Assistant-AddOn/wikis/%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B?sort_id=3862199)
+
 ## 通过 Docker 安装
 
 -   **使用 host 网络用于发现和控制 DIY 和局域网设备**
