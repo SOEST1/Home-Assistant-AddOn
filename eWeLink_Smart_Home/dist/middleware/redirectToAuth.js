@@ -39,63 +39,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var axios_1 = __importDefault(require("axios"));
-var restApi_1 = require("../apis/restApi");
-var DiyController = /** @class */ (function () {
-    function DiyController(_a) {
-        var deviceId = _a.deviceId, ip = _a.ip, _b = _a.port, port = _b === void 0 ? 8081 : _b, disabled = _a.disabled, txt = _a.txt;
-        this.type = 1;
-        this.uiid = 1;
-        this.deviceId = deviceId;
-        this.ip = ip;
-        this.port = port;
-        this.entityId = "switch." + deviceId;
-        // this.entityId = `switch.${deviceId}`;
-        this.disabled = disabled;
-        this.txt = txt;
+var config_1 = require("../config/config");
+var url_1 = require("../config/url");
+var AuthClass_1 = __importDefault(require("../class/AuthClass"));
+var genAuthorizeUrl = function (hassUrl, clientId, redirectUrl, state) {
+    var authorizeUrl = hassUrl + "/auth/authorize?response_type=code&redirect_uri=" + encodeURIComponent(redirectUrl);
+    authorizeUrl += "&client_id=" + encodeURIComponent(clientId);
+    if (state) {
+        authorizeUrl += "&state=" + encodeURIComponent(state);
     }
-    return DiyController;
-}());
-DiyController.prototype.setSwitch = function (status) {
-    return __awaiter(this, void 0, void 0, function () {
-        var _this = this;
-        return __generator(this, function (_a) {
-            axios_1.default
-                .post("http://" + this.ip + ":" + this.port + "/zeroconf/switch", {
-                sequence: Date.now(),
-                deviceId: this.deviceId,
-                data: {
-                    switch: status,
-                },
-            })
-                .catch(function (e) {
-                console.log('控制DIY设备出错，设备id：', _this.deviceId);
-            });
-            return [2 /*return*/];
-        });
-    });
+    return authorizeUrl;
 };
-DiyController.prototype.updateState = function (status) {
-    return __awaiter(this, void 0, void 0, function () {
-        var _this = this;
-        return __generator(this, function (_a) {
-            if (this.disabled) {
-                return [2 /*return*/];
+exports.default = (function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var url, hostname, protocol, code, _a, origin, host, ip, port, clientId;
+    return __generator(this, function (_b) {
+        url = req.url, hostname = req.hostname, protocol = req.protocol, code = req.query.code, _a = req.headers, origin = _a.origin, host = _a.host, ip = req.ip;
+        console.log('Jia ~ file: redirectToAuth.ts ~ line 27 ~ ip', ip);
+        port = config_1.debugMode ? ":" + 8000 : ":" + 3000;
+        clientId = protocol + '://' + hostname + port;
+        // if (origin === 'http://localhost:8000') {
+        if (AuthClass_1.default.isValid(ip)) {
+            next();
+        }
+        else {
+            if (url === '/' || url.indexOf('/?code') === 0) {
+                next();
             }
-            restApi_1.updateStates(this.entityId, {
-                entity_id: this.entityId,
-                state: status,
-                attributes: {
-                    restored: true,
-                    supported_features: 0,
-                    friendly_name: this.entityId,
-                    state: status,
-                },
-            }).catch(function (e) {
-                console.log('更新Diy设备到HA出错，设备id：', _this.deviceId);
-            });
-            return [2 /*return*/];
-        });
+            else {
+                console.log('Jia ~ file: redirectToAuth.ts ~ line 40 ~ url', url);
+                res.json({
+                    error: 302,
+                    data: url_1.HaRestURL,
+                });
+            }
+        }
+        return [2 /*return*/];
     });
-};
-exports.default = DiyController;
+}); });

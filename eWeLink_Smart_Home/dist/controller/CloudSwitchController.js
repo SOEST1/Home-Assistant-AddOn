@@ -60,14 +60,11 @@ var CloudSwitchController = /** @class */ (function (_super) {
     function CloudSwitchController(params) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 1;
-        _this.deviceId = params.deviceId;
         _this.entityId = "switch." + params.deviceId;
-        _this.deviceName = params.deviceName;
-        _this.apikey = params.apikey;
         _this.params = params.params;
-        _this.extra = params.extra;
         _this.disabled = params.disabled;
         _this.uiid = params.extra.uiid;
+        _this.online = params.online;
         return _this;
     }
     return CloudSwitchController;
@@ -88,6 +85,7 @@ CloudSwitchController.prototype.updateSwitch = function (status) {
                     res = _a.sent();
                     if (res.error === 0) {
                         this.updateState(status);
+                        this.params.switch = status;
                     }
                     return [2 /*return*/];
             }

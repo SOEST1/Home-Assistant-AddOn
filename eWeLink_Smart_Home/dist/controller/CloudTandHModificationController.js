@@ -55,18 +55,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
 var restApi_1 = require("../apis/restApi");
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
+var dataUtil_1 = require("../utils/dataUtil");
 var CloudTandHModificationController = /** @class */ (function (_super) {
     __extends(CloudTandHModificationController, _super);
     function CloudTandHModificationController(params) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 15;
-        _this.deviceId = params.deviceId;
-        _this.deviceName = params.deviceName;
-        _this.apikey = params.apikey;
         _this.params = params.params;
-        _this.extra = params.extra;
         _this.entityId = "switch." + params.deviceId;
         _this.disabled = params.disabled || false;
+        _this.online = params.online;
+        _this.unit = dataUtil_1.getDataSync('unit.json', [_this.deviceId]) || 'c';
         return _this;
     }
     return CloudTandHModificationController;
@@ -87,6 +86,7 @@ CloudTandHModificationController.prototype.updateSwitch = function (status) {
                     res = _a.sent();
                     if (res.error === 0) {
                         this.updateState(status);
+                        this.params.switch = status;
                     }
                     return [2 /*return*/];
             }

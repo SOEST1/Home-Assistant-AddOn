@@ -79,6 +79,8 @@ var CloudRGBLightStripController_1 = __importDefault(require("../controller/Clou
 var LanMultiChannelSwitchController_1 = __importDefault(require("../controller/LanMultiChannelSwitchController"));
 var CloudTandHModificationController_1 = __importDefault(require("../controller/CloudTandHModificationController"));
 var CloudDoubleColorLightController_1 = __importDefault(require("../controller/CloudDoubleColorLightController"));
+var CloudDualR3Controller_1 = __importDefault(require("../controller/CloudDualR3Controller"));
+var eventBus_1 = __importDefault(require("./eventBus"));
 /**
  *
  *
@@ -88,99 +90,160 @@ var CloudDoubleColorLightController_1 = __importDefault(require("../controller/C
  * @param {{ outlet: number; switch: string }[]} [mutiSwitchState] 可选，控制多通道的全开/全关
  * @return {*}
  */
-var handleDeviceByEntityId = function (entity_id, state, res, mutiSwitchState) {
-    var device = Controller_1.default.getDevice(entity_id.replace(/_\d+$/, ''));
-    // DIY
-    if (device instanceof DiyDeviceController_1.default) {
-        device.setSwitch(state);
-    }
-    // LAN
-    if (device instanceof LanSwitchController_1.default) {
-        device.setSwitch(state);
-    }
-    // LAN
-    if (device instanceof LanMultiChannelSwitchController_1.default) {
-        if (mutiSwitchState) {
-            device.setSwitch(mutiSwitchState);
+var handleDeviceByEntityId = function (entity_id, state, res, mutiSwitchState) { return __awaiter(void 0, void 0, void 0, function () {
+    var device, _a, id, outlet, _b, hs_color, _c, brightness_pct, params, brightness_pct, _d, id, outlet, _e, hs_color, color_temp, _f, brightness_pct, params, _g, color_temp, brightness_pct, _h, id, outlet;
+    return __generator(this, function (_j) {
+        switch (_j.label) {
+            case 0:
+                device = Controller_1.default.getDevice(entity_id.replace(/_\d+$/, ''));
+                if (!(device instanceof DiyDeviceController_1.default)) return [3 /*break*/, 2];
+                return [4 /*yield*/, device.setSwitch(state)];
+            case 1:
+                _j.sent();
+                _j.label = 2;
+            case 2:
+                if (!(device instanceof LanSwitchController_1.default)) return [3 /*break*/, 4];
+                return [4 /*yield*/, device.setSwitch(state)];
+            case 3:
+                _j.sent();
+                _j.label = 4;
+            case 4:
+                if (!(device instanceof LanMultiChannelSwitchController_1.default)) return [3 /*break*/, 8];
+                if (!mutiSwitchState) return [3 /*break*/, 6];
+                return [4 /*yield*/, device.setSwitch(mutiSwitchState)];
+            case 5:
+                _j.sent();
+                return [3 /*break*/, 8];
+            case 6:
+                _a = __read(entity_id.split('_'), 2), id = _a[0], outlet = _a[1];
+                return [4 /*yield*/, device.setSwitch([
+                        {
+                            outlet: +outlet - 1,
+                            switch: state,
+                        },
+                    ])];
+            case 7:
+                _j.sent();
+                _j.label = 8;
+            case 8:
+                if (!(device instanceof CloudSwitchController_1.default)) return [3 /*break*/, 10];
+                return [4 /*yield*/, device.updateSwitch(state)];
+            case 9:
+                _j.sent();
+                _j.label = 10;
+            case 10:
+                if (!(device instanceof CloudRGBLightController_1.default)) return [3 /*break*/, 14];
+                if (!(state === 'off')) return [3 /*break*/, 12];
+                return [4 /*yield*/, device.updateLight({
+                        state: state,
+                    })];
+            case 11:
+                _j.sent();
+                return [2 /*return*/];
+            case 12:
+                _b = res.service_data, hs_color = _b.hs_color, _c = _b.brightness_pct, brightness_pct = _c === void 0 ? 0 : _c;
+                params = device.parseHaData2Ck({ hs_color: hs_color, brightness_pct: brightness_pct, state: state });
+                return [4 /*yield*/, device.updateLight(params)];
+            case 13:
+                _j.sent();
+                _j.label = 14;
+            case 14:
+                if (!(device instanceof CloudDimmingController_1.default)) return [3 /*break*/, 16];
+                brightness_pct = res.service_data.brightness_pct;
+                return [4 /*yield*/, device.updateLight({
+                        switch: state,
+                        bright: brightness_pct,
+                    })];
+            case 15:
+                _j.sent();
+                _j.label = 16;
+            case 16:
+                if (!(device instanceof CloudPowerDetectionSwitchController_1.default)) return [3 /*break*/, 18];
+                return [4 /*yield*/, device.updateSwitch(state)];
+            case 17:
+                _j.sent();
+                _j.label = 18;
+            case 18:
+                if (!(device instanceof CloudTandHModificationController_1.default)) return [3 /*break*/, 20];
+                return [4 /*yield*/, device.updateSwitch(state)];
+            case 19:
+                _j.sent();
+                _j.label = 20;
+            case 20:
+                if (!(device instanceof CloudMultiChannelSwitchController_1.default)) return [3 /*break*/, 24];
+                if (!mutiSwitchState) return [3 /*break*/, 22];
+                return [4 /*yield*/, device.updateSwitch(mutiSwitchState)];
+            case 21:
+                _j.sent();
+                return [3 /*break*/, 24];
+            case 22:
+                _d = __read(entity_id.split('_'), 2), id = _d[0], outlet = _d[1];
+                return [4 /*yield*/, device.updateSwitch([
+                        {
+                            outlet: +outlet - 1,
+                            switch: state,
+                        },
+                    ])];
+            case 23:
+                _j.sent();
+                _j.label = 24;
+            case 24:
+                if (!(device instanceof CloudRGBLightStripController_1.default)) return [3 /*break*/, 28];
+                if (!(state === 'off')) return [3 /*break*/, 26];
+                return [4 /*yield*/, device.updateLight({
+                        switch: state,
+                    })];
+            case 25:
+                _j.sent();
+                return [2 /*return*/];
+            case 26:
+                _e = res.service_data, hs_color = _e.hs_color, color_temp = _e.color_temp, _f = _e.brightness_pct, brightness_pct = _f === void 0 ? 0 : _f;
+                params = device.parseHaData2Ck({ hs_color: hs_color, brightness_pct: brightness_pct, state: state });
+                return [4 /*yield*/, device.updateLight(params)];
+            case 27:
+                _j.sent();
+                _j.label = 28;
+            case 28:
+                if (!(device instanceof CloudDoubleColorLightController_1.default)) return [3 /*break*/, 32];
+                if (!(state === 'off')) return [3 /*break*/, 30];
+                return [4 /*yield*/, device.updateLight({
+                        switch: state,
+                    })];
+            case 29:
+                _j.sent();
+                return [2 /*return*/];
+            case 30:
+                _g = res.service_data, color_temp = _g.color_temp, brightness_pct = _g.brightness_pct;
+                return [4 /*yield*/, device.updateLight({
+                        switch: state,
+                        ct: color_temp,
+                        br: brightness_pct,
+                    })];
+            case 31:
+                _j.sent();
+                _j.label = 32;
+            case 32:
+                if (!(device instanceof CloudDualR3Controller_1.default)) return [3 /*break*/, 36];
+                if (!mutiSwitchState) return [3 /*break*/, 34];
+                return [4 /*yield*/, device.updateSwitch(mutiSwitchState)];
+            case 33:
+                _j.sent();
+                return [3 /*break*/, 36];
+            case 34:
+                _h = __read(entity_id.split('_'), 2), id = _h[0], outlet = _h[1];
+                return [4 /*yield*/, device.updateSwitch([
+                        {
+                            outlet: +outlet - 1,
+                            switch: state,
+                        },
+                    ])];
+            case 35:
+                _j.sent();
+                _j.label = 36;
+            case 36: return [2 /*return*/];
         }
-        else {
-            var _a = __read(entity_id.split('_'), 2), id = _a[0], outlet = _a[1];
-            device.setSwitch([
-                {
-                    outlet: +outlet - 1,
-                    switch: state,
-                },
-            ]);
-        }
-    }
-    // Cloud
-    if (device instanceof CloudSwitchController_1.default) {
-        device.updateSwitch(state);
-    }
-    if (device instanceof CloudRGBLightController_1.default) {
-        if (state === 'off') {
-            device.updateLight({
-                state: state,
-            });
-            return;
-        }
-        var _b = res.service_data, hs_color = _b.hs_color, _c = _b.brightness_pct, brightness_pct = _c === void 0 ? 0 : _c;
-        var params = device.parseHaData2Ck({ hs_color: hs_color, brightness_pct: brightness_pct, state: state });
-        device.updateLight(params);
-    }
-    if (device instanceof CloudDimmingController_1.default) {
-        var brightness_pct = res.service_data.brightness_pct;
-        device.updateLight({
-            switch: state,
-            bright: brightness_pct,
-        });
-    }
-    if (device instanceof CloudPowerDetectionSwitchController_1.default) {
-        device.updateSwitch(state);
-    }
-    if (device instanceof CloudTandHModificationController_1.default) {
-        device.updateSwitch(state);
-    }
-    if (device instanceof CloudMultiChannelSwitchController_1.default) {
-        if (mutiSwitchState) {
-            device.updateSwitch(mutiSwitchState);
-        }
-        else {
-            var _d = __read(entity_id.split('_'), 2), id = _d[0], outlet = _d[1];
-            device.updateSwitch([
-                {
-                    outlet: +outlet - 1,
-                    switch: state,
-                },
-            ]);
-        }
-    }
-    if (device instanceof CloudRGBLightStripController_1.default) {
-        if (state === 'off') {
-            device.updateLight({
-                switch: state,
-            });
-            return;
-        }
-        var _e = res.service_data, hs_color = _e.hs_color, color_temp = _e.color_temp, _f = _e.brightness_pct, brightness_pct = _f === void 0 ? 0 : _f;
-        var params = device.parseHaData2Ck({ hs_color: hs_color, brightness_pct: brightness_pct, state: state });
-        device.updateLight(params);
-    }
-    if (device instanceof CloudDoubleColorLightController_1.default) {
-        if (state === 'off') {
-            device.updateLight({
-                switch: state,
-            });
-            return;
-        }
-        var _g = res.service_data, color_temp = _g.color_temp, brightness_pct = _g.brightness_pct;
-        device.updateLight({
-            switch: state,
-            ct: color_temp,
-            br: brightness_pct,
-        });
-    }
-};
+    });
+}); };
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
     var res, err_1;
     return __generator(this, function (_a) {
@@ -192,76 +255,79 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                 res = _a.sent();
                 if (res === 0) {
                     HASocketClass_1.default.subscribeEvents('call_service');
-                    HASocketClass_1.default.handleEvent('call_service', function (res) {
-                        var e_1, _a;
-                        console.log('HA触发call_service事件', res);
-                        var entity_id = res.service_data.entity_id, service = res.service;
-                        var state = service === 'turn_off' ? 'off' : 'on';
-                        if (Array.isArray(entity_id)) {
-                            // 暂存多通道设备
-                            var tmpMap_1 = new Map();
-                            entity_id.forEach(function (item) {
-                                var _a = __read(item.split('_'), 2), deviceid = _a[0], outlet = _a[1];
-                                var device = Controller_1.default.getDevice(deviceid);
-                                // 一次性控制多通道设备多个通道
-                                if (device instanceof LanMultiChannelSwitchController_1.default || device instanceof CloudMultiChannelSwitchController_1.default) {
-                                    if (tmpMap_1.has(deviceid)) {
-                                        tmpMap_1.get(deviceid).push({
-                                            outlet: outlet - 1,
-                                            switch: state,
-                                        });
+                    HASocketClass_1.default.handleEvent('call_service', function (res) { return __awaiter(void 0, void 0, void 0, function () {
+                        var entity_id, service, state, tmpMap_1, _a, _b, _c, id, mutiSwitchState, e_1_1;
+                        var e_1, _d;
+                        return __generator(this, function (_e) {
+                            switch (_e.label) {
+                                case 0:
+                                    console.log('HA触发call_service事件', res);
+                                    entity_id = res.service_data.entity_id, service = res.service;
+                                    state = service === 'turn_off' ? 'off' : 'on';
+                                    if (!Array.isArray(entity_id)) return [3 /*break*/, 8];
+                                    tmpMap_1 = new Map();
+                                    entity_id.forEach(function (item) {
+                                        var _a = __read(item.split('_'), 2), deviceid = _a[0], outlet = _a[1];
+                                        var device = Controller_1.default.getDevice(deviceid);
+                                        // 一次性控制多通道设备多个通道
+                                        if (device instanceof LanMultiChannelSwitchController_1.default || device instanceof CloudMultiChannelSwitchController_1.default || device instanceof CloudDualR3Controller_1.default) {
+                                            if (tmpMap_1.has(deviceid)) {
+                                                tmpMap_1.get(deviceid).push({
+                                                    outlet: outlet - 1,
+                                                    switch: state,
+                                                });
+                                            }
+                                            else {
+                                                tmpMap_1.set(deviceid, [
+                                                    {
+                                                        outlet: outlet - 1,
+                                                        switch: state,
+                                                    },
+                                                ]);
+                                            }
+                                        }
+                                        else {
+                                            handleDeviceByEntityId(item, state, res);
+                                        }
+                                    });
+                                    _e.label = 1;
+                                case 1:
+                                    _e.trys.push([1, 6, 7, 8]);
+                                    _a = __values(tmpMap_1.entries()), _b = _a.next();
+                                    _e.label = 2;
+                                case 2:
+                                    if (!!_b.done) return [3 /*break*/, 5];
+                                    _c = __read(_b.value, 2), id = _c[0], mutiSwitchState = _c[1];
+                                    return [4 /*yield*/, handleDeviceByEntityId(id, state, res, mutiSwitchState)];
+                                case 3:
+                                    _e.sent();
+                                    _e.label = 4;
+                                case 4:
+                                    _b = _a.next();
+                                    return [3 /*break*/, 2];
+                                case 5: return [3 /*break*/, 8];
+                                case 6:
+                                    e_1_1 = _e.sent();
+                                    e_1 = { error: e_1_1 };
+                                    return [3 /*break*/, 8];
+                                case 7:
+                                    try {
+                                        if (_b && !_b.done && (_d = _a.return)) _d.call(_a);
                                     }
-                                    else {
-                                        tmpMap_1.set(deviceid, [
-                                            {
-                                                outlet: outlet - 1,
-                                                switch: state,
-                                            },
-                                        ]);
-                                    }
-                                }
-                                else {
-                                    handleDeviceByEntityId(item, state, res);
-                                }
-                            });
-                            try {
-                                for (var _b = __values(tmpMap_1.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                                    var _d = __read(_c.value, 2), id = _d[0], mutiSwitchState = _d[1];
-                                    handleDeviceByEntityId(id, state, res, mutiSwitchState);
-                                }
+                                    finally { if (e_1) throw e_1.error; }
+                                    return [7 /*endfinally*/];
+                                case 8:
+                                    if (!(typeof entity_id === 'string')) return [3 /*break*/, 10];
+                                    return [4 /*yield*/, handleDeviceByEntityId(entity_id, state, res)];
+                                case 9:
+                                    _e.sent();
+                                    _e.label = 10;
+                                case 10:
+                                    eventBus_1.default.emit('sse');
+                                    return [2 /*return*/];
                             }
-                            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                            finally {
-                                try {
-                                    if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                                }
-                                finally { if (e_1) throw e_1.error; }
-                            }
-                        }
-                        if (typeof entity_id === 'string') {
-                            handleDeviceByEntityId(entity_id, state, res);
-                        }
-                    });
-                    HASocketClass_1.default.subscribeEvents('state_changed');
-                    // todo
-                    // HASocket.handleEvent('state_changed', (res: TypeHaSocketStateChangedData) => {
-                    //     try {
-                    //         const { entity_id, new_state } = res;
-                    //         console.log('Jia ~ file: initHaSocket.ts ~ line 33 ~ HASocket.handleEvent ~ new_state', new_state);
-                    //         if (entity_id) {
-                    //             const data = Controller.getDevice(entity_id);
-                    //             if (data && data.type === 1) {
-                    //                 (data as DiyDeviceController).updateState(new_state.state);
-                    //                 // (data as DiyDeviceController).setSwitch(new_state.state);
-                    //             }
-                    //             if (data && data.type === 4) {
-                    //                 (data as CloudSwitchController).updateSwitch(new_state.state);
-                    //             }
-                    //         }
-                    //     } catch (error) {
-                    //         console.log('Jia ~ file: initHaSocket.ts ~ line 45 ~ HASocket.handleEvent ~ error', error);
-                    //     }
-                    // });
+                        });
+                    }); });
                 }
                 return [3 /*break*/, 3];
             case 2:

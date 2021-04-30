@@ -39,15 +39,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerService = exports.removeStates = exports.updateStates = exports.getStateByEntityId = void 0;
+exports.refreshAuth = exports.getAuth = exports.registerService = exports.removeStates = exports.updateStates = exports.getStateByEntityId = void 0;
 var axios_1 = __importDefault(require("axios"));
+var AuthClass_1 = __importDefault(require("../class/AuthClass"));
 var auth_1 = require("../config/auth");
 var url_1 = require("../config/url");
 var restRequest = axios_1.default.create({
     baseURL: url_1.HaRestURL,
-    headers: {
+});
+restRequest.interceptors.request.use(function (val) {
+    val.headers = {
         Authorization: "Bearer " + auth_1.HaToken,
-    },
+    };
+    return val;
+});
+var restRequestWithoutAuth = axios_1.default.create({
+    baseURL: url_1.HaRestURL,
 });
 var getStateByEntityId = function (entityId) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
@@ -68,6 +75,8 @@ var updateStates = function (entityId, data) { return __awaiter(void 0, void 0, 
                 data: data,
             }).catch(function (e) {
                 console.log('更新设备到HA出错：', entityId, '\ndata: ', data);
+                console.log('Jia ~ file: restApi.ts ~ line 10 ~ AuthClass.curAuth', AuthClass_1.default.curAuth);
+                console.log('Jia ~ file: restApi.ts ~ line 50 ~ updateStates ~ e', e);
             })];
     });
 }); };
@@ -87,14 +96,54 @@ var registerService = function (domain, service) { return __awaiter(void 0, void
     return __generator(this, function (_a) {
         return [2 /*return*/, restRequest({
                 method: 'POST',
-                url: "/api/services/" + domain + "/" + service,
+                url: "/api/events/service_registered",
                 data: {
-                    entity_id: 'switch.Ceiling',
+                    domain: domain,
+                    service: service,
                 },
             }).catch(function (e) {
                 console.log('注册服务', domain, ':', service, '出错');
-                console.log('Jia ~ file: restApi.ts ~ line 55 ~ registerService ~ e', e);
             })];
     });
 }); };
 exports.registerService = registerService;
+var getAuth = function (clientId, code) { return __awaiter(void 0, void 0, void 0, function () {
+    var res;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                res = restRequestWithoutAuth({
+                    method: 'POST',
+                    url: '/auth/token',
+                    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+                    data: "grant_type=authorization_code&client_id=" + clientId + "&code=" + code,
+                });
+                res.catch(function (e) {
+                    console.log('获取Auth出错:', clientId, '\ncode:' + code + '\n', e);
+                });
+                return [4 /*yield*/, res];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
+    });
+}); };
+exports.getAuth = getAuth;
+var refreshAuth = function (clientId, refreshToken) { return __awaiter(void 0, void 0, void 0, function () {
+    var res;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                res = restRequestWithoutAuth({
+                    method: 'POST',
+                    url: '/auth/token',
+                    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+                    data: "grant_type=refresh_token&client_id=" + clientId + "&refresh_token=" + refreshToken,
+                });
+                res.catch(function (e) {
+                    console.log('刷新Auth出错:', clientId, '\n', e);
+                });
+                return [4 /*yield*/, res];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
+    });
+}); };
+exports.refreshAuth = refreshAuth;

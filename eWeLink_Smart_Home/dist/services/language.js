@@ -55,7 +55,7 @@ var getLanguage = function (req, res) { return __awaiter(void 0, void 0, void 0,
             case 1:
                 data = _a.sent();
                 res.json({
-                    error: 200,
+                    error: 0,
                     data: lodash_1.default.get(data, 'value.language', 'en'),
                 });
                 return [3 /*break*/, 3];

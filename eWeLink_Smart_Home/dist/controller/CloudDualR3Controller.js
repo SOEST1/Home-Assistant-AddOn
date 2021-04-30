@@ -52,78 +52,78 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var lanDeviceApi_1 = require("../apis/lanDeviceApi");
+var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
 var restApi_1 = require("../apis/restApi");
-var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
-var LanSwitchController = /** @class */ (function (_super) {
-    __extends(LanSwitchController, _super);
-    function LanSwitchController(_a) {
-        var deviceId = _a.deviceId, ip = _a.ip, _b = _a.port, port = _b === void 0 ? 8081 : _b, disabled = _a.disabled, encryptedData = _a.encryptedData, iv = _a.iv;
-        var _this = _super.call(this) || this;
-        _this.deviceId = deviceId;
-        _this.ip = ip;
-        _this.port = port;
-        _this.entityId = "switch." + deviceId;
-        _this.disabled = disabled;
-        _this.iv = iv;
-        _this.encryptedData = encryptedData;
-        _this.online = true;
+var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
+var dataUtil_1 = require("../utils/dataUtil");
+var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
+var CloudDualR3Controller = /** @class */ (function (_super) {
+    __extends(CloudDualR3Controller, _super);
+    function CloudDualR3Controller(params) {
+        var _a;
+        var _this = _super.call(this, params) || this;
+        _this.maxChannel = 2;
+        _this.entityId = "switch." + params.deviceId;
+        _this.params = params.params;
+        _this.disabled = params.disabled;
+        _this.uiid = params.extra.uiid;
+        _this.channelName = (_a = params.tags) === null || _a === void 0 ? void 0 : _a.ck_channel_name;
+        _this.online = params.online;
+        _this.rate = +dataUtil_1.getDataSync('rate.json', [_this.deviceId]) || 0;
         return _this;
     }
-    return LanSwitchController;
-}(LanDeviceController_1.default));
-LanSwitchController.prototype.setSwitch = function (status) {
+    return CloudDualR3Controller;
+}(CloudDeviceController_1.default));
+CloudDualR3Controller.prototype.updateSwitch = function (switches) {
     return __awaiter(this, void 0, void 0, function () {
         var res;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, lanDeviceApi_1.setSwitch({
-                            ip: this.ip,
-                            port: this.port,
-                            deviceid: this.deviceId,
-                            devicekey: this.devicekey,
-                            selfApikey: this.selfApikey,
-                            data: JSON.stringify({
-                                switch: status,
-                            }),
-                        })];
+                case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                        deviceApikey: this.apikey,
+                        deviceid: this.deviceId,
+                        params: {
+                            switches: switches,
+                        },
+                    })];
                 case 1:
                     res = _a.sent();
-                    if ((res === null || res === void 0 ? void 0 : res.data) && res.data.error === 0) {
-                        this.updateState(status);
+                    if (res.error === 0) {
+                        this.updateState(switches);
+                        this.params = mergeDeviceParams_1.default(this.params, { switches: switches });
                     }
-                    _a.label = 2;
-                case 2: return [2 /*return*/];
-            }
-        });
-    });
-};
-LanSwitchController.prototype.updateState = function (status) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    if (this.disabled) {
-                        return [2 /*return*/];
-                    }
-                    return [4 /*yield*/, restApi_1.updateStates(this.entityId, {
-                            entity_id: this.entityId,
-                            state: status,
-                            attributes: {
-                                restored: true,
-                                supported_features: 0,
-                                friendly_name: this.deviceName || this.entityId,
-                                state: status,
-                            },
-                        })];
-                case 1:
-                    res = _a.sent();
                     return [2 /*return*/];
             }
         });
     });
 };
-exports.default = LanSwitchController;
+/**
+ * @description 更新状态到HA
+ */
+CloudDualR3Controller.prototype.updateState = function (switches) {
+    return __awaiter(this, void 0, void 0, function () {
+        var _this = this;
+        return __generator(this, function (_a) {
+            console.log('Jia ~ file: CloudDualR3Controller.ts ~ line 44 ~ switches', switches);
+            if (this.disabled) {
+                return [2 /*return*/];
+            }
+            switches.forEach(function (_a) {
+                var outlet = _a.outlet, status = _a.switch;
+                var name = _this.channelName ? _this.channelName[outlet] : outlet + 1;
+                restApi_1.updateStates(_this.entityId + "_" + (outlet + 1), {
+                    entity_id: _this.entityId + "_" + (outlet + 1),
+                    state: status,
+                    attributes: {
+                        restored: true,
+                        supported_features: 0,
+                        friendly_name: _this.deviceName + "-" + name,
+                        state: status,
+                    },
+                });
+            });
+            return [2 /*return*/];
+        });
+    });
+};
+exports.default = CloudDualR3Controller;

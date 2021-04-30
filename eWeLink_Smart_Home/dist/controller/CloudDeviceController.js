@@ -5,6 +5,10 @@ var CloudDeviceController = /** @class */ (function () {
         this.type = 4;
         this.rssi = data.params.rssi;
         this.apikey = data.apikey;
+        this.deviceId = data.deviceId;
+        this.deviceName = data.deviceName;
+        this.extra = data.extra;
+        this.index = data.index;
     }
     return CloudDeviceController;
 }());

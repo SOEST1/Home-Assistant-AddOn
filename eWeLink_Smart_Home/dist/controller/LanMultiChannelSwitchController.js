@@ -67,6 +67,7 @@ var LanMultiChannelSwitchController = /** @class */ (function (_super) {
         _this.disabled = disabled;
         _this.iv = iv;
         _this.encryptedData = encryptedData;
+        _this.online = true;
         return _this;
     }
     return LanMultiChannelSwitchController;

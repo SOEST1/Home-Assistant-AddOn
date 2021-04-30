@@ -78,13 +78,10 @@ var CloudRGBLightController = /** @class */ (function (_super) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 22;
         var _a = params.params, channel0 = _a.channel0, channel1 = _a.channel1, channel2 = _a.channel2, channel3 = _a.channel3, channel4 = _a.channel4, zyx_mode = _a.zyx_mode, type = _a.type;
-        _this.deviceId = params.deviceId;
         _this.entityId = "light." + params.deviceId;
-        _this.deviceName = params.deviceName;
-        _this.apikey = params.apikey;
         _this.params = params.params;
-        _this.extra = params.extra;
         _this.disabled = params.disabled;
+        _this.online = params.online;
         switch (type) {
             case 'cold':
                 _this.colorTemp = 1;

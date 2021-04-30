@@ -55,31 +55,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
 var restApi_1 = require("../apis/restApi");
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
+var dataUtil_1 = require("../utils/dataUtil");
 var CloudPowerDetectionSwitchController = /** @class */ (function (_super) {
     __extends(CloudPowerDetectionSwitchController, _super);
     function CloudPowerDetectionSwitchController(params) {
         var _this = _super.call(this, params) || this;
-        _this.uiid = 32;
-        _this.deviceId = params.deviceId;
         _this.entityId = "switch." + params.deviceId;
-        _this.deviceName = params.deviceName;
-        _this.apikey = params.apikey;
         _this.params = params.params;
-        _this.extra = params.extra;
         _this.disabled = params.disabled;
         _this.state = params.params.switch;
         _this.current = params.params.current;
         _this.voltage = params.params.voltage;
+        _this.uiid = params.extra.uiid;
         _this.power = params.params.power;
-        // 如果电流电压功率有更新就通知我
-        setInterval(function () {
-            coolkit_ws_1.default.updateThing({
-                deviceApikey: _this.apikey,
-                deviceid: _this.deviceId,
-                params: { uiActive: 120 },
-            });
-        }, 120000);
+        _this.online = params.online;
+        _this.rate = +dataUtil_1.getDataSync('rate.json', [_this.deviceId]) || 0;
         return _this;
+        // // 如果电流电压功率有更新就通知我
+        // setInterval(() => {
+        //     coolKitWs.updateThing({
+        //         deviceApikey: this.apikey,
+        //         deviceid: this.deviceId,
+        //         params: { uiActive: 120 },
+        //     });
+        // }, 120000);
     }
     return CloudPowerDetectionSwitchController;
 }(CloudDeviceController_1.default));
@@ -99,6 +98,7 @@ CloudPowerDetectionSwitchController.prototype.updateSwitch = function (status) {
                     res = _a.sent();
                     if (res.error === 0) {
                         this.updateState({ status: status });
+                        this.params.switch = status;
                     }
                     return [2 /*return*/];
             }

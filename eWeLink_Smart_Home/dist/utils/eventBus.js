@@ -39,63 +39,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var axios_1 = __importDefault(require("axios"));
-var restApi_1 = require("../apis/restApi");
-var DiyController = /** @class */ (function () {
-    function DiyController(_a) {
-        var deviceId = _a.deviceId, ip = _a.ip, _b = _a.port, port = _b === void 0 ? 8081 : _b, disabled = _a.disabled, txt = _a.txt;
-        this.type = 1;
-        this.uiid = 1;
-        this.deviceId = deviceId;
-        this.ip = ip;
-        this.port = port;
-        this.entityId = "switch." + deviceId;
-        // this.entityId = `switch.${deviceId}`;
-        this.disabled = disabled;
-        this.txt = txt;
+var eventemitter3_1 = __importDefault(require("eventemitter3"));
+var CloudDeviceController_1 = __importDefault(require("../controller/CloudDeviceController"));
+var Controller_1 = __importDefault(require("../controller/Controller"));
+var LanDeviceController_1 = __importDefault(require("../controller/LanDeviceController"));
+var initHaSocket_1 = __importDefault(require("./initHaSocket"));
+var mergeDeviceParams_1 = __importDefault(require("./mergeDeviceParams"));
+var eventBus = new eventemitter3_1.default();
+eventBus.on('update-controller', function (str) {
+    var data = JSON.parse(str);
+    console.log('Jia ~ file: eventBus.ts ~ line 11 ~ eventBus.on ~ data', data);
+    var device = Controller_1.default.getDevice(data.deviceid);
+    if (device instanceof LanDeviceController_1.default || device instanceof CloudDeviceController_1.default) {
+        device.params = mergeDeviceParams_1.default(device.params, data.params);
+        device.online = true;
     }
-    return DiyController;
-}());
-DiyController.prototype.setSwitch = function (status) {
-    return __awaiter(this, void 0, void 0, function () {
-        var _this = this;
-        return __generator(this, function (_a) {
-            axios_1.default
-                .post("http://" + this.ip + ":" + this.port + "/zeroconf/switch", {
-                sequence: Date.now(),
-                deviceId: this.deviceId,
-                data: {
-                    switch: status,
-                },
-            })
-                .catch(function (e) {
-                console.log('控制DIY设备出错，设备id：', _this.deviceId);
-            });
-            return [2 /*return*/];
-        });
-    });
-};
-DiyController.prototype.updateState = function (status) {
-    return __awaiter(this, void 0, void 0, function () {
-        var _this = this;
-        return __generator(this, function (_a) {
-            if (this.disabled) {
+});
+eventBus.on('device-offline', function (id) {
+    var device = Controller_1.default.getDevice(id);
+    if (device instanceof LanDeviceController_1.default || device instanceof CloudDeviceController_1.default) {
+        device.online = false;
+    }
+});
+eventBus.on('init-ha-socket', function () { return __awaiter(void 0, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, initHaSocket_1.default()];
+            case 1:
+                _a.sent(); // 跟HA建立socket连接
                 return [2 /*return*/];
-            }
-            restApi_1.updateStates(this.entityId, {
-                entity_id: this.entityId,
-                state: status,
-                attributes: {
-                    restored: true,
-                    supported_features: 0,
-                    friendly_name: this.entityId,
-                    state: status,
-                },
-            }).catch(function (e) {
-                console.log('更新Diy设备到HA出错，设备id：', _this.deviceId);
-            });
-            return [2 /*return*/];
-        });
+        }
     });
-};
-exports.default = DiyController;
+}); });
+exports.default = eventBus;

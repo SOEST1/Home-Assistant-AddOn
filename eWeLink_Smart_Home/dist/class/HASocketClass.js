@@ -133,6 +133,7 @@ var HaSocket = /** @class */ (function () {
                             catch (error) {
                                 console.log('Jia ~ file: HASocketClass.ts ~ line 92 ~ HaSocket ~ query ~ error', error);
                                 resolve(-1);
+                                _this.client.removeEventListener('message', handler);
                             }
                         }));
                     })];

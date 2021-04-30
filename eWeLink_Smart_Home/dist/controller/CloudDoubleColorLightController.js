@@ -61,17 +61,16 @@ var CloudDoubleColorLightController = /** @class */ (function (_super) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 103;
         var ltype = params.params.ltype;
-        _this.deviceId = params.deviceId;
         _this.entityId = "light." + params.deviceId;
         _this.deviceName = params.deviceName;
         _this.apikey = params.apikey;
-        _this.params = params.params;
-        _this.extra = params.extra;
         _this.disabled = params.disabled;
         _this.ltype = ltype;
         var _a = params.params[ltype], br = _a.br, ct = _a.ct;
         _this.br = br;
         _this.ct = 255 - ct;
+        _this.online = params.online;
+        _this.params = params.params;
         return _this;
     }
     return CloudDoubleColorLightController;

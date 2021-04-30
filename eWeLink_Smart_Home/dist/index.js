@@ -65,6 +65,7 @@ var cors_1 = __importDefault(require("cors"));
 var user_1 = __importDefault(require("./route/user"));
 var devices_1 = __importDefault(require("./route/devices"));
 var language_1 = __importDefault(require("./route/language"));
+var stream_1 = __importDefault(require("./route/stream"));
 var initMdns_1 = __importDefault(require("./utils/initMdns"));
 var initCkWs_1 = __importDefault(require("./utils/initCkWs"));
 var initHaSocket_1 = __importDefault(require("./utils/initHaSocket"));
@@ -80,17 +81,25 @@ coolkit_open_api_1.default.init({
         switch (_a.label) {
             case 0:
                 initMdns_1.default(); // 扫描局域网设备
-                initHaSocket_1.default(); // 跟HA建立socket连接
-                return [4 /*yield*/, initCkApi_1.default()];
+                // todo
+                // await AuthClass.init();
+                // if (AuthClass.curAuth) {
+                //     eventBus.emit('init-ha-socket');
+                // }
+                return [4 /*yield*/, initHaSocket_1.default()];
             case 1:
-                _a.sent(); // 初始化v2接口并保持登录
-                // serviceRegistered(); // 注册HA相关服务
-                // await sleep(3000);
+                // todo
+                // await AuthClass.init();
+                // if (AuthClass.curAuth) {
+                //     eventBus.emit('init-ha-socket');
+                // }
+                _a.sent(); // 跟HA建立socket连接
                 return [4 /*yield*/, initCkWs_1.default()];
             case 2:
-                // serviceRegistered(); // 注册HA相关服务
-                // await sleep(3000);
                 _a.sent(); // 跟易微联Socket建立连接
+                return [4 /*yield*/, initCkApi_1.default()];
+            case 3:
+                _a.sent(); // 初始化v2接口并保持登录
                 return [2 /*return*/];
         }
     });
@@ -98,15 +107,17 @@ coolkit_open_api_1.default.init({
 var app = express_1.default();
 var port = 3000;
 var apiPrefix = '/api';
-app.use('/', express_1.default.static(path.join(__dirname, '/pages')));
 if (config_1.debugMode) {
     app.use(cors_1.default());
 }
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use(apiPrefix + "/user", user_1.default);
+// app.use(redirectToAuth);
+app.use('/', express_1.default.static(path.join(__dirname, '/pages')));
 app.use(apiPrefix + "/devices", devices_1.default);
 app.use(apiPrefix + "/language", language_1.default);
+app.use(apiPrefix + "/stream", stream_1.default);
 app.use('/', function (req, res) {
     res.type('.html');
     res.sendFile(path.join(__dirname, '/pages/index.html'));

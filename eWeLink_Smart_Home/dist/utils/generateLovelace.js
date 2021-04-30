@@ -52,11 +52,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var lodash_1 = __importDefault(require("lodash"));
 var HASocketClass_1 = __importDefault(require("../class/HASocketClass"));
+var CloudDualR3Controller_1 = __importDefault(require("../controller/CloudDualR3Controller"));
 var CloudMultiChannelSwitchController_1 = __importDefault(require("../controller/CloudMultiChannelSwitchController"));
+var CloudPowerDetectionSwitchController_1 = __importDefault(require("../controller/CloudPowerDetectionSwitchController"));
+var CloudSwitchController_1 = __importDefault(require("../controller/CloudSwitchController"));
 var Controller_1 = __importDefault(require("../controller/Controller"));
+var DiyDeviceController_1 = __importDefault(require("../controller/DiyDeviceController"));
 var LanMultiChannelSwitchController_1 = __importDefault(require("../controller/LanMultiChannelSwitchController"));
+var LanSwitchController_1 = __importDefault(require("../controller/LanSwitchController"));
 var generateLovelace = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var res, title, views, lovelace, tmp, _loop_1, _a, _b, device;
+    var res, title, views, lovelace_1, isDeviceExist, singalSwitchCard, _loop_1, _a, _b, device;
     var e_1, _c;
     return __generator(this, function (_d) {
         switch (_d.label) {
@@ -65,13 +70,45 @@ var generateLovelace = function () { return __awaiter(void 0, void 0, void 0, fu
                 res = _d.sent();
                 if (!(res && Array.isArray(res.views))) return [3 /*break*/, 3];
                 title = res.title, views = res.views;
-                lovelace = { path: '', title: 'eWeLink Smart Home', badges: [], cards: [] };
-                tmp = lodash_1.default.findIndex(views, { title: 'eWeLink Smart Home' });
-                if (~tmp) {
-                    lovelace = views[tmp];
+                lovelace_1 = { path: '', title: 'eWeLink Smart Home', badges: [], cards: [] };
+                // const tmp = _.findIndex(views, { title: 'eWeLink Smart Home' });
+                // if (~tmp) {
+                //     lovelace = views[tmp];
+                // }
+                if (views.length) {
+                    lovelace_1 = views[0];
                 }
+                isDeviceExist = function (deviceId) {
+                    try {
+                        var tmp = JSON.stringify(lovelace_1);
+                        return tmp.includes(deviceId);
+                    }
+                    catch (error) {
+                        return false;
+                    }
+                };
+                singalSwitchCard = {
+                    type: 'entities',
+                    title: 'Switch',
+                    state_color: true,
+                    show_header_toggle: false,
+                    entities: [],
+                };
                 _loop_1 = function (device) {
-                    if (device instanceof CloudMultiChannelSwitchController_1.default || device instanceof LanMultiChannelSwitchController_1.default) {
+                    if (isDeviceExist(device.entityId)) {
+                        return "continue";
+                    }
+                    if (device instanceof DiyDeviceController_1.default || device instanceof CloudSwitchController_1.default || device instanceof CloudPowerDetectionSwitchController_1.default) {
+                        singalSwitchCard.entities.push(device.entityId);
+                        return "continue";
+                    }
+                    if (device instanceof LanSwitchController_1.default) {
+                        if (device.selfApikey && device.devicekey) {
+                            singalSwitchCard.entities.push(device.entityId);
+                        }
+                        return "continue";
+                    }
+                    if (device instanceof CloudMultiChannelSwitchController_1.default || device instanceof LanMultiChannelSwitchController_1.default || device instanceof CloudDualR3Controller_1.default) {
                         console.log('Jia ~ file: generateLovelace.ts ~ line 24 ~ generateLovelace ~ device', device);
                         if (!device.maxChannel || device.maxChannel === 1 || !device.deviceName) {
                             return "continue";
@@ -85,12 +122,12 @@ var generateLovelace = function () { return __awaiter(void 0, void 0, void 0, fu
                             title: device.deviceName,
                             state_color: true,
                         };
-                        var index = lodash_1.default.findIndex(lovelace.cards, { title: device.deviceName });
+                        var index = lodash_1.default.findIndex(lovelace_1.cards, { title: device.deviceName });
                         if (~index) {
-                            lovelace.cards[index] = tmpCard;
+                            lovelace_1.cards[index] = tmpCard;
                         }
                         else {
-                            lovelace.cards.push(tmpCard);
+                            lovelace_1.cards.push(tmpCard);
                         }
                     }
                 };
@@ -107,13 +144,18 @@ var generateLovelace = function () { return __awaiter(void 0, void 0, void 0, fu
                     }
                     finally { if (e_1) throw e_1.error; }
                 }
-                if (~tmp) {
-                    views[tmp] = lovelace;
+                // if (~tmp) {
+                //     views[tmp] = lovelace;
+                // } else {
+                //     views.push(lovelace);
+                // }
+                if (singalSwitchCard.entities.length) {
+                    lovelace_1.cards.unshift(singalSwitchCard);
                 }
-                else {
-                    views.push(lovelace);
+                if (views) {
+                    views[0] = lovelace_1;
                 }
-                console.log('Jia ~ file: generateLovelace.ts ~ line 53 ~ generateLovelace ~ lovelace', lovelace);
+                console.log('Jia ~ file: generateLovelace.ts ~ line 53 ~ generateLovelace ~ lovelace', lovelace_1);
                 return [4 /*yield*/, HASocketClass_1.default.query({
                         type: 'lovelace/config/save',
                         config: {

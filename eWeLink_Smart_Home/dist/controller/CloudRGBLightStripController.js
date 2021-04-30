@@ -88,13 +88,10 @@ var CloudRGBLightStripController = /** @class */ (function (_super) {
     function CloudRGBLightStripController(params) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 59;
-        _this.deviceId = params.deviceId;
         _this.entityId = "light." + params.deviceId;
-        _this.deviceName = params.deviceName;
-        _this.apikey = params.apikey;
         _this.params = params.params;
-        _this.extra = params.extra;
         _this.disabled = params.disabled;
+        _this.online = params.online;
         _this.brightness = _this.params.bright * 2.55;
         _this.mode = _this.params.mode;
         _this.speed = _this.params.speed;

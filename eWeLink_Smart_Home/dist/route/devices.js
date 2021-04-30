@@ -19,4 +19,7 @@ router.post('/updateChannelName', devices_1.updateChannelName);
 router.post('/proxy2ws', devices_1.proxy2ws);
 router.post('/getOTAinfo', devices_1.getOTAinfo);
 router.post('/diy', devices_1.updateDiyDevice);
+router.post('/device/unit', devices_1.changeUnit);
+router.post('/device/rate', devices_1.setRate);
+router.delete('/diy', devices_1.removeDiyDevice);
 exports.default = router;

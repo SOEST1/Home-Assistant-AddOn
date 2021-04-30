@@ -54,26 +54,28 @@ var LanMultiChannelSwitchController_1 = __importDefault(require("../controller/L
 var channelMap_1 = require("../config/channelMap");
 var CloudDoubleColorLightController_1 = __importDefault(require("../controller/CloudDoubleColorLightController"));
 var LanSwitchController_1 = __importDefault(require("../controller/LanSwitchController"));
+var CloudDualR3Controller_1 = __importDefault(require("../controller/CloudDualR3Controller"));
+var dataUtil_1 = require("./dataUtil");
 // 获取设备并同步到HA
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, error, data, thingList, i, item, _b, extra, deviceid, name_1, params, devicekey, apikey, online, tags, old, decryptData, decryptData, device, status_1, power, voltage, current, data_1;
+    var lang, _a, error, data, thingList, i, item, deviceIndex, _b, extra, deviceid, name_1, params, devicekey, apikey, tags, old, decryptData, decryptData, device, status_1, power, voltage, current, data_1;
     return __generator(this, function (_c) {
         switch (_c.label) {
-            case 0: return [4 /*yield*/, coolkit_open_api_1.default.device.getThingList({
-                    // todo
-                    lang: 'cn',
-                })];
+            case 0:
+                lang = dataUtil_1.getDataSync('user.json', ['region']) === 'cn' ? 'cn' : 'en';
+                return [4 /*yield*/, coolkit_open_api_1.default.device.getThingList({
+                        lang: lang,
+                    })];
             case 1:
                 _a = _c.sent(), error = _a.error, data = _a.data;
                 if (error === 0) {
                     thingList = data.thingList;
+                    console.log('Jia ~ file: getThings.ts ~ line 25 ~ thingList', JSON.stringify(thingList, null, 2));
                     for (i = 0; i < thingList.length; i++) {
                         item = thingList[i];
+                        deviceIndex = item.index;
                         if (item.itemType < 3) {
-                            _b = item.itemData, extra = _b.extra, deviceid = _b.deviceid, name_1 = _b.name, params = _b.params, devicekey = _b.devicekey, apikey = _b.apikey, online = _b.online, tags = _b.tags;
-                            if (!online) {
-                                continue;
-                            }
+                            _b = item.itemData, extra = _b.extra, deviceid = _b.deviceid, name_1 = _b.name, params = _b.params, devicekey = _b.devicekey, apikey = _b.apikey, tags = _b.tags;
                             old = Controller_1.default.getDevice(deviceid);
                             if (old instanceof DiyDeviceController_1.default) {
                                 // 如果设备已经存在并且是DIY设备就不做任何操作
@@ -86,6 +88,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                 old.deviceName = name_1;
                                 old.extra = extra;
                                 old.params = params;
+                                old.index = deviceIndex;
                                 if (old instanceof LanSwitchController_1.default) {
                                     decryptData = old.parseEncryptedData();
                                     if (decryptData) {
@@ -106,6 +109,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                 id: deviceid,
                                 type: 4,
                                 data: item.itemData,
+                                index: deviceIndex,
                             });
                             if (device instanceof CloudSwitchController_1.default) {
                                 !device.disabled && device.updateState(params.switch);
@@ -143,6 +147,10 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                             }
                             if (device instanceof CloudDoubleColorLightController_1.default) {
                                 !device.disabled && device.updateState(params);
+                            }
+                            if (device instanceof CloudDualR3Controller_1.default) {
+                                console.log('Jia ~ file: getThings.ts ~ CloudDualR3Controller ~ params', params);
+                                !device.disabled && device.updateState(params.switches);
                             }
                         }
                     }

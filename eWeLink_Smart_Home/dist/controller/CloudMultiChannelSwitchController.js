@@ -61,16 +61,13 @@ var CloudMultiChannelSwitchController = /** @class */ (function (_super) {
     function CloudMultiChannelSwitchController(params) {
         var _a;
         var _this = _super.call(this, params) || this;
-        _this.deviceId = params.deviceId;
         _this.entityId = "switch." + params.deviceId;
-        _this.deviceName = params.deviceName;
-        _this.apikey = params.apikey;
-        _this.params = params.params;
-        _this.extra = params.extra;
         _this.disabled = params.disabled;
         _this.uiid = params.extra.uiid;
         _this.channelName = (_a = params.tags) === null || _a === void 0 ? void 0 : _a.ck_channel_name;
         _this.maxChannel = channelMap_1.getMaxChannelByUiid(params.extra.uiid);
+        _this.online = params.online;
+        _this.params = params.params;
         return _this;
     }
     return CloudMultiChannelSwitchController;

@@ -30,6 +30,8 @@ var LanSwitchController_1 = __importDefault(require("./LanSwitchController"));
 var LanMultiChannelSwitchController_1 = __importDefault(require("./LanMultiChannelSwitchController"));
 var uiid_1 = require("../config/uiid");
 var CloudDoubleColorLightController_1 = __importDefault(require("./CloudDoubleColorLightController"));
+var UnsupportDeviceController_1 = __importDefault(require("./UnsupportDeviceController"));
+var CloudDualR3Controller_1 = __importDefault(require("./CloudDualR3Controller"));
 var Controller = /** @class */ (function () {
     function Controller() {
     }
@@ -56,7 +58,8 @@ var Controller = /** @class */ (function () {
      * @memberof Controller
      */
     Controller.setDevice = function (params) {
-        var id = params.id, type = params.type, data = params.data, lanType = params.lanType;
+        var id = params.id, type = params.type, data = params.data, lanType = params.lanType, index = params.index;
+        var _index = index || this.count++;
         if (lodash_1.default.isEmpty(id)) {
             return null;
         }
@@ -112,24 +115,28 @@ var Controller = /** @class */ (function () {
                     apikey: tmp.apikey,
                     extra: tmp.extra,
                     params: tmp.params,
+                    online: tmp.online,
                     disabled: disabled,
+                    index: _index,
                 });
                 Controller.deviceMap.set(id, switchDevice);
                 return switchDevice;
             }
             if (uiid_1.multiChannelSwitchUiidSet.has(data.extra.uiid)) {
                 var tmp = data;
-                var device = new CloudMultiChannelSwitchController_1.default({
+                var device_1 = new CloudMultiChannelSwitchController_1.default({
                     deviceId: tmp.deviceid,
                     deviceName: tmp.name,
                     apikey: tmp.apikey,
                     extra: tmp.extra,
                     params: tmp.params,
                     tags: tmp.tags,
+                    online: tmp.online,
                     disabled: disabled,
+                    index: _index,
                 });
-                Controller.deviceMap.set(id, device);
-                return device;
+                Controller.deviceMap.set(id, device_1);
+                return device_1;
             }
             // 恒温恒湿改装件
             if (data.extra.uiid === 15) {
@@ -140,7 +147,9 @@ var Controller = /** @class */ (function () {
                     apikey: tmp.apikey,
                     extra: tmp.extra,
                     params: tmp.params,
+                    online: tmp.online,
                     disabled: disabled,
+                    index: _index,
                 });
                 Controller.deviceMap.set(id, thmDevice);
                 return thmDevice;
@@ -154,13 +163,15 @@ var Controller = /** @class */ (function () {
                     apikey: tmp.apikey,
                     extra: tmp.extra,
                     params: tmp.params,
+                    online: tmp.online,
                     disabled: disabled,
+                    index: _index,
                 });
                 Controller.deviceMap.set(id, rgbLight);
                 return rgbLight;
             }
             // 功率检测告警开关
-            if (data.extra.uiid === 32) {
+            if (data.extra.uiid === 32 || data.extra.uiid === 5) {
                 var tmp = data;
                 var switchDevice = new CloudPowerDetectionSwitchController_1.default({
                     deviceId: tmp.deviceid,
@@ -168,7 +179,9 @@ var Controller = /** @class */ (function () {
                     apikey: tmp.apikey,
                     extra: tmp.extra,
                     params: tmp.params,
+                    online: tmp.online,
                     disabled: disabled,
+                    index: _index,
                 });
                 Controller.deviceMap.set(id, switchDevice);
                 return switchDevice;
@@ -182,7 +195,9 @@ var Controller = /** @class */ (function () {
                     apikey: tmp.apikey,
                     extra: tmp.extra,
                     params: tmp.params,
+                    online: tmp.online,
                     disabled: disabled,
+                    index: _index,
                 });
                 Controller.deviceMap.set(id, dimming);
                 return dimming;
@@ -190,34 +205,61 @@ var Controller = /** @class */ (function () {
             // RGB灯带
             if (data.extra.uiid === 59) {
                 var tmp = data;
-                var device = new CloudRGBLightStripController_1.default({
+                var device_2 = new CloudRGBLightStripController_1.default({
                     deviceId: tmp.deviceid,
                     deviceName: tmp.name,
                     apikey: tmp.apikey,
                     extra: tmp.extra,
                     params: tmp.params,
+                    online: tmp.online,
                     disabled: disabled,
+                    index: _index,
                 });
-                Controller.deviceMap.set(id, device);
-                return device;
+                Controller.deviceMap.set(id, device_2);
+                return device_2;
             }
             // 双色冷暖灯
             if (data.extra.uiid === 103) {
                 var tmp = data;
-                var device = new CloudDoubleColorLightController_1.default({
+                var device_3 = new CloudDoubleColorLightController_1.default({
                     deviceId: tmp.deviceid,
                     deviceName: tmp.name,
                     apikey: tmp.apikey,
                     extra: tmp.extra,
                     params: tmp.params,
                     disabled: disabled,
+                    online: tmp.online,
+                    index: _index,
                 });
-                Controller.deviceMap.set(id, device);
-                return device;
+                Controller.deviceMap.set(id, device_3);
+                return device_3;
+            }
+            // DualR3
+            if (data.extra.uiid === 126) {
+                var tmp = data;
+                var device_4 = new CloudDualR3Controller_1.default({
+                    deviceId: tmp.deviceid,
+                    deviceName: tmp.name,
+                    apikey: tmp.apikey,
+                    extra: tmp.extra,
+                    params: tmp.params,
+                    disabled: disabled,
+                    online: tmp.online,
+                    index: _index,
+                });
+                Controller.deviceMap.set(id, device_4);
+                return device_4;
+            }
+            // 暂不支持的设备
+            if (!Controller.deviceMap.has(id)) {
+                var unsupportDevice = new UnsupportDeviceController_1.default(data);
+                Controller.unsupportDeviceMap.set(id, unsupportDevice);
             }
         }
     };
     Controller.deviceMap = new Map();
+    Controller.unsupportDeviceMap = new Map();
+    Controller.count = 999;
     return Controller;
 }());
 exports.default = Controller;

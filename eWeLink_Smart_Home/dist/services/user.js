@@ -46,11 +46,38 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = exports.login = void 0;
+exports.auth = exports.isLogin = exports.logout = exports.login = void 0;
 var coolkit_open_api_1 = __importDefault(require("coolkit-open-api"));
 var dataUtil_1 = require("../utils/dataUtil");
 var getThings_1 = __importDefault(require("../utils/getThings"));
@@ -58,6 +85,11 @@ var Controller_1 = __importDefault(require("../controller/Controller"));
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var app_1 = require("../config/app");
 var lodash_1 = __importDefault(require("lodash"));
+var eventBus_1 = __importDefault(require("../utils/eventBus"));
+var LanDeviceController_1 = __importDefault(require("../controller/LanDeviceController"));
+var CloudDeviceController_1 = __importDefault(require("../controller/CloudDeviceController"));
+var restApi_1 = require("../apis/restApi");
+var AuthClass_1 = __importDefault(require("../class/AuthClass"));
 /**
  * @param {string} lang
  * @param {string} email
@@ -97,6 +129,7 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 return [4 /*yield*/, getThings_1.default()];
             case 3:
                 _b.sent();
+                eventBus_1.default.emit('sse');
                 _b.label = 4;
             case 4:
                 res.json(result);
@@ -111,28 +144,51 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
 }); };
 exports.login = login;
 var logout = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var result, ckRes, err_2;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var result, _a, _b, _c, id, device, ckRes, err_2;
+    var e_1, _d;
+    return __generator(this, function (_e) {
+        switch (_e.label) {
             case 0:
-                _a.trys.push([0, 3, , 4]);
+                _e.trys.push([0, 3, , 4]);
                 return [4 /*yield*/, dataUtil_1.clearData('user.json')];
             case 1:
-                result = _a.sent();
+                result = _e.sent();
                 console.log('Jia ~ file: user.ts ~ line 37 ~ logout ~ result', result);
                 dataUtil_1.clearData('disabled.json');
-                Controller_1.default.deviceMap.clear();
+                try {
+                    for (_a = __values(Controller_1.default.deviceMap.entries()), _b = _a.next(); !_b.done; _b = _a.next()) {
+                        _c = __read(_b.value, 2), id = _c[0], device = _c[1];
+                        if (device instanceof LanDeviceController_1.default) {
+                            device.selfApikey = undefined;
+                            device.devicekey = undefined;
+                            device.deviceName = undefined;
+                            device.extra = undefined;
+                            device.params = undefined;
+                        }
+                        if (device instanceof CloudDeviceController_1.default) {
+                            Controller_1.default.deviceMap.delete(id);
+                        }
+                    }
+                }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (_b && !_b.done && (_d = _a.return)) _d.call(_a);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
                 return [4 /*yield*/, coolkit_open_api_1.default.user.logout()];
             case 2:
-                ckRes = _a.sent();
+                ckRes = _e.sent();
                 console.log('Jia ~ file: user.ts ~ line 41 ~ logout ~ ckRes', ckRes);
                 res.json({
                     error: 0,
                     data: null,
                 });
+                eventBus_1.default.emit('sse');
                 return [3 /*break*/, 4];
             case 3:
-                err_2 = _a.sent();
+                err_2 = _e.sent();
                 console.log(err_2);
                 res.json({
                     error: 500,
@@ -144,3 +200,85 @@ var logout = function (req, res) { return __awaiter(void 0, void 0, void 0, func
     });
 }); };
 exports.logout = logout;
+var isLogin = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var result, err_3;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, dataUtil_1.getDataSync('user.json')];
+            case 1:
+                result = _a.sent();
+                if (result && result.at) {
+                    res.json({
+                        error: 0,
+                        data: { isLogin: true },
+                    });
+                    return [2 /*return*/];
+                }
+                res.json({
+                    error: 0,
+                    data: { isLogin: false },
+                });
+                return [3 /*break*/, 3];
+            case 2:
+                err_3 = _a.sent();
+                console.log(err_3);
+                res.json({
+                    error: 500,
+                    data: err_3,
+                });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.isLogin = isLogin;
+var auth = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, code, clientId, result, err_4;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                console.log('Jia ~ file: user.ts ~ line 110 ~ auth ~ req.body', req.body);
+                if (AuthClass_1.default.isValid(req.ip)) {
+                    res.json({
+                        error: 0,
+                        data: null,
+                    });
+                    return [2 /*return*/];
+                }
+                _a = req.body, code = _a.code, clientId = _a.clientId;
+                return [4 /*yield*/, restApi_1.getAuth(clientId, code)];
+            case 1:
+                result = _b.sent();
+                if (result && result.status === 200) {
+                    // todo
+                    // AuthClass.setAuth(req.ip, clientId, result.data);
+                    // eventBus.emit('init-ha-socket');
+                    console.log('Jia ~ file: redirectToAuth.ts ~ line 44 ~ result.data', result.data);
+                    res.json({
+                        error: 0,
+                        data: null,
+                    });
+                }
+                else {
+                    res.json({
+                        error: result.status,
+                        data: null,
+                    });
+                }
+                return [3 /*break*/, 3];
+            case 2:
+                err_4 = _b.sent();
+                console.log(err_4);
+                res.json({
+                    error: 500,
+                    data: err_4,
+                });
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.auth = auth;

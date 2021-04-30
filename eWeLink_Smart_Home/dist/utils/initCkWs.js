@@ -63,6 +63,8 @@ var CloudMultiChannelSwitchController_1 = __importDefault(require("../controller
 var CloudRGBLightStripController_1 = __importDefault(require("../controller/CloudRGBLightStripController"));
 var restApi_1 = require("../apis/restApi");
 var CloudDoubleColorLightController_1 = __importDefault(require("../controller/CloudDoubleColorLightController"));
+var eventBus_1 = __importDefault(require("./eventBus"));
+var CloudDualR3Controller_1 = __importDefault(require("../controller/CloudDualR3Controller"));
 var apikey = dataUtil_1.getDataSync('user.json', ['user', 'apikey']);
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
     var at;
@@ -89,12 +91,13 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                             case 0:
                                 _d.trys.push([0, 3, , 4]);
                                 type = ws.type, data = ws.data;
+                                console.log('接受到CKWS消息:type-->', data);
+                                console.log('接受到CKWS消息:\n', data);
                                 if (!(type === 'message' && data !== 'pong')) return [3 /*break*/, 2];
                                 tmp = JSON.parse(data);
                                 if (!tmp.deviceid) {
                                     return [2 /*return*/];
                                 }
-                                console.log('接受到CKWS消息:\n', data);
                                 device = Controller_1.default.getDevice(tmp.deviceid);
                                 if (tmp.action === 'update') {
                                     if (device instanceof CloudSwitchController_1.default) {
@@ -122,6 +125,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                     }
                                     if (device instanceof CloudPowerDetectionSwitchController_1.default) {
                                         _c = tmp.params, current = _c.current, voltage = _c.voltage, power = _c.power, status_2 = _c.switch;
+                                        console.log('接收到功率检查插座的消息->params:', tmp.params);
                                         device.updateState({
                                             status: status_2,
                                             current: current,
@@ -142,10 +146,19 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                         console.log('接收到双色灯的信息：', tmp.params);
                                         device.updateState(tmp.params);
                                     }
+                                    if (device instanceof CloudDualR3Controller_1.default) {
+                                        console.log('接收到DualR3的信息：', tmp.params);
+                                        if (tmp.params && tmp.params.switches) {
+                                            device.updateState(tmp.params.switches);
+                                        }
+                                    }
+                                    // 同步状态到前端
+                                    eventBus_1.default.emit('update-controller', data);
+                                    eventBus_1.default.emit('sse');
                                 }
                                 if (!(tmp.action === 'sysmsg' && (device === null || device === void 0 ? void 0 : device.entityId))) return [3 /*break*/, 2];
                                 online = tmp.params.online;
-                                if (!!online) return [3 /*break*/, 2];
+                                if (!(online === false)) return [3 /*break*/, 2];
                                 return [4 /*yield*/, restApi_1.getStateByEntityId(device.entityId)];
                             case 1:
                                 res = _d.sent();
@@ -156,6 +169,9 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                         attributes: __assign(__assign({}, res.data.attributes), { state: 'unavailable' }),
                                     });
                                 }
+                                // 同步状态到前端
+                                eventBus_1.default.emit('device-offline', device.deviceId);
+                                eventBus_1.default.emit('sse');
                                 _d.label = 2;
                             case 2: return [3 /*break*/, 4];
                             case 3:
