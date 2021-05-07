@@ -57,17 +57,10 @@ var restApi_1 = require("../apis/restApi");
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
 var LanSwitchController = /** @class */ (function (_super) {
     __extends(LanSwitchController, _super);
-    function LanSwitchController(_a) {
-        var deviceId = _a.deviceId, ip = _a.ip, _b = _a.port, port = _b === void 0 ? 8081 : _b, disabled = _a.disabled, encryptedData = _a.encryptedData, iv = _a.iv;
-        var _this = _super.call(this) || this;
-        _this.deviceId = deviceId;
-        _this.ip = ip;
-        _this.port = port;
+    function LanSwitchController(props) {
+        var _this = _super.call(this, props) || this;
+        var deviceId = props.deviceId;
         _this.entityId = "switch." + deviceId;
-        _this.disabled = disabled;
-        _this.iv = iv;
-        _this.encryptedData = encryptedData;
-        _this.online = true;
         return _this;
     }
     return LanSwitchController;
@@ -80,7 +73,7 @@ LanSwitchController.prototype.setSwitch = function (status) {
                 case 0:
                     if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
                     return [4 /*yield*/, lanDeviceApi_1.setSwitch({
-                            ip: this.ip,
+                            ip: this.ip || this.target,
                             port: this.port,
                             deviceid: this.deviceId,
                             devicekey: this.devicekey,
@@ -102,21 +95,25 @@ LanSwitchController.prototype.setSwitch = function (status) {
 };
 LanSwitchController.prototype.updateState = function (status) {
     return __awaiter(this, void 0, void 0, function () {
-        var res;
+        var state, res;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     if (this.disabled) {
                         return [2 /*return*/];
                     }
+                    state = status;
+                    if (!this.online) {
+                        state = 'unavailable';
+                    }
                     return [4 /*yield*/, restApi_1.updateStates(this.entityId, {
                             entity_id: this.entityId,
-                            state: status,
+                            state: state,
                             attributes: {
                                 restored: true,
                                 supported_features: 0,
                                 friendly_name: this.deviceName || this.entityId,
-                                state: status,
+                                state: state,
                             },
                         })];
                 case 1:

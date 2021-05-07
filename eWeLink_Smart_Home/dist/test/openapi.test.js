@@ -46,17 +46,19 @@ var dataUtil_1 = require("../utils/dataUtil");
 var Controller_1 = __importDefault(require("../controller/Controller"));
 var restApi_1 = require("../apis/restApi");
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var at, apikey, result, _a, error, data, thingList;
+    var at, apikey, region, result, _a, error, data, thingList;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 at = dataUtil_1.getDataSync('user.json', ['at']);
                 apikey = dataUtil_1.getDataSync('user.json', ['user', 'apikey']);
+                region = dataUtil_1.getDataSync('user.json', ['region']);
                 return [4 /*yield*/, coolkit_ws_1.default.init({
                         appid: app_1.appId,
-                        secret: app_1.appSecret,
                         at: at,
                         apikey: apikey,
+                        region: region,
+                        userAgent: 'app',
                     })];
             case 1:
                 result = _b.sent();

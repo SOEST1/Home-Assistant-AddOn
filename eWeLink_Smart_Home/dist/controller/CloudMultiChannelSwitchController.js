@@ -78,7 +78,7 @@ CloudMultiChannelSwitchController.prototype.updateSwitch = function (switches) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
-                        deviceApikey: this.apikey,
+                        ownerApikey: this.apikey,
                         deviceid: this.deviceId,
                         params: {
                             switches: switches,
@@ -107,14 +107,18 @@ CloudMultiChannelSwitchController.prototype.updateState = function (switches) {
             switches.forEach(function (_a) {
                 var outlet = _a.outlet, status = _a.switch;
                 var name = _this.channelName ? _this.channelName[outlet] : outlet + 1;
+                var state = status;
+                if (!_this.online) {
+                    state = 'unavailable';
+                }
                 restApi_1.updateStates(_this.entityId + "_" + (outlet + 1), {
                     entity_id: _this.entityId + "_" + (outlet + 1),
-                    state: status,
+                    state: state,
                     attributes: {
                         restored: true,
                         supported_features: 0,
                         friendly_name: _this.deviceName + "-" + name,
-                        state: status,
+                        state: state,
                     },
                 });
             });

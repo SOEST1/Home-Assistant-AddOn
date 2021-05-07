@@ -41,11 +41,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.refreshAuth = exports.getAuth = exports.registerService = exports.removeStates = exports.updateStates = exports.getStateByEntityId = void 0;
 var axios_1 = __importDefault(require("axios"));
-var AuthClass_1 = __importDefault(require("../class/AuthClass"));
 var auth_1 = require("../config/auth");
 var url_1 = require("../config/url");
 var restRequest = axios_1.default.create({
     baseURL: url_1.HaRestURL,
+    timeout: 5000,
 });
 restRequest.interceptors.request.use(function (val) {
     val.headers = {
@@ -75,8 +75,6 @@ var updateStates = function (entityId, data) { return __awaiter(void 0, void 0, 
                 data: data,
             }).catch(function (e) {
                 console.log('更新设备到HA出错：', entityId, '\ndata: ', data);
-                console.log('Jia ~ file: restApi.ts ~ line 10 ~ AuthClass.curAuth', AuthClass_1.default.curAuth);
-                console.log('Jia ~ file: restApi.ts ~ line 50 ~ updateStates ~ e', e);
             })];
     });
 }); };

@@ -67,19 +67,21 @@ var eventBus_1 = __importDefault(require("./eventBus"));
 var CloudDualR3Controller_1 = __importDefault(require("../controller/CloudDualR3Controller"));
 var apikey = dataUtil_1.getDataSync('user.json', ['user', 'apikey']);
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var at;
+    var at, region;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 at = dataUtil_1.getDataSync('user.json', ['at']);
+                region = dataUtil_1.getDataSync('user.json', ['region']);
                 if (!at || !apikey) {
                     return [2 /*return*/, -1];
                 }
                 return [4 /*yield*/, coolkit_ws_1.default.init({
                         appid: app_1.appId,
-                        secret: app_1.appSecret,
                         at: at,
                         apikey: apikey,
+                        region: region,
+                        userAgent: 'app',
                     })];
             case 1:
                 _a.sent();

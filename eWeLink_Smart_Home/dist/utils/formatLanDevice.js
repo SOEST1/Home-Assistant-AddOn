@@ -14,6 +14,7 @@ exports.default = (function (device) {
             encryptedData: "" + data1 + data2 + data3 + data4,
             ip: a,
             port: srv.port,
+            target: srv.target,
             iv: lanControlAuthenticationUtils_1.default.decryptionBase64(txt.iv),
         };
     }

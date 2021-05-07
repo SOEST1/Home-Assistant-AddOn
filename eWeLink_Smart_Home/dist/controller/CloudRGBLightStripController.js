@@ -145,7 +145,7 @@ CloudRGBLightStripController.prototype.updateLight = function (params) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
-                        deviceApikey: this.apikey,
+                        ownerApikey: this.apikey,
                         deviceid: this.deviceId,
                         params: __assign(__assign({}, params), { mode: 1, speed: this.speed, sensitive: this.sensitive }),
                     })];
@@ -168,18 +168,23 @@ CloudRGBLightStripController.prototype.updateLight = function (params) {
 CloudRGBLightStripController.prototype.updateState = function (_a) {
     var status = _a.status, brightness = _a.brightness, hs_color = _a.hs_color, mode = _a.mode, speed = _a.speed, sensitive = _a.sensitive;
     return __awaiter(this, void 0, void 0, function () {
+        var state;
         return __generator(this, function (_b) {
             if (this.disabled) {
                 return [2 /*return*/];
             }
+            state = status;
+            if (!this.online) {
+                state = 'unavailable';
+            }
             restApi_1.updateStates(this.entityId, {
                 entity_id: this.entityId,
-                state: status,
+                state: state,
                 attributes: {
                     restored: true,
                     supported_features: 17,
                     friendly_name: this.deviceName,
-                    state: status,
+                    state: state,
                     brightness: brightness === undefined ? this.brightness : brightness,
                     hs_color: hs_color,
                     mode: mode === undefined ? this.mode : mode,

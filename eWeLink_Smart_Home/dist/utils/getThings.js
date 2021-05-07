@@ -56,9 +56,10 @@ var CloudDoubleColorLightController_1 = __importDefault(require("../controller/C
 var LanSwitchController_1 = __importDefault(require("../controller/LanSwitchController"));
 var CloudDualR3Controller_1 = __importDefault(require("../controller/CloudDualR3Controller"));
 var dataUtil_1 = require("./dataUtil");
+var LanDualR3Controller_1 = __importDefault(require("../controller/LanDualR3Controller"));
 // 获取设备并同步到HA
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var lang, _a, error, data, thingList, i, item, deviceIndex, _b, extra, deviceid, name_1, params, devicekey, apikey, tags, old, decryptData, decryptData, device, status_1, power, voltage, current, data_1;
+    var lang, _a, error, data, thingList, i, item, deviceIndex, _b, extra, deviceid, name_1, params, devicekey, apikey, tags, old, decryptData, decryptData, decryptData, device, status_1, power, voltage, current, data_1;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
@@ -96,6 +97,14 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                     }
                                 }
                                 if (old instanceof LanMultiChannelSwitchController_1.default) {
+                                    old.channelName = tags === null || tags === void 0 ? void 0 : tags.ck_channel_name;
+                                    old.maxChannel = channelMap_1.getMaxChannelByUiid(extra.uiid);
+                                    decryptData = old.parseEncryptedData();
+                                    if (decryptData) {
+                                        old.updateState(decryptData.switches);
+                                    }
+                                }
+                                if (old instanceof LanDualR3Controller_1.default) {
                                     old.channelName = tags === null || tags === void 0 ? void 0 : tags.ck_channel_name;
                                     old.maxChannel = channelMap_1.getMaxChannelByUiid(extra.uiid);
                                     decryptData = old.parseEncryptedData();

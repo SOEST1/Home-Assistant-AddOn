@@ -53,24 +53,45 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ws_1 = __importDefault(require("ws"));
 var auth_1 = require("../config/auth");
 var url_1 = require("../config/url");
+var initHaSocket_1 = __importDefault(require("../utils/initHaSocket"));
+var syncDevice2Ha_1 = __importDefault(require("../utils/syncDevice2Ha"));
 var HaSocket = /** @class */ (function () {
     function HaSocket() {
         this.count = 1;
-        this.client = new ws_1.default(url_1.HaSocketURL);
+        this.connect();
+        this.heartBeat();
     }
+    HaSocket.prototype.connect = function () {
+        try {
+            this.client = new ws_1.default(url_1.HaSocketURL);
+            this.client.on('error', function () {
+                console.log('请检查HA是否正确运行');
+            });
+        }
+        catch (error) {
+            console.log('初始化HA-WS连接出错', error);
+        }
+    };
     HaSocket.createInstance = function () {
         if (!HaSocket.instance) {
             HaSocket.instance = new HaSocket();
         }
         return HaSocket.instance;
     };
-    HaSocket.prototype.init = function () {
+    HaSocket.prototype.init = function (reconnect) {
+        if (reconnect === void 0) { reconnect = false; }
         return __awaiter(this, void 0, void 0, function () {
             var handler;
             var _this = this;
             return __generator(this, function (_a) {
+                if (reconnect) {
+                    this.connect();
+                }
                 return [2 /*return*/, new Promise(function (resolve, reject) {
                         _this.client.on('open', function () {
+                            if (_this.client.readyState !== 1) {
+                                resolve(-1);
+                            }
                             _this.client.send(JSON.stringify({
                                 type: 'auth',
                                 access_token: auth_1.HaToken,
@@ -82,6 +103,13 @@ var HaSocket = /** @class */ (function () {
                                 console.log('Jia ~ file: HASocketClass.ts ~ line 37 ~ HaSocket ~ init ~ data', data);
                                 if (data.type === 'auth_ok') {
                                     resolve(0);
+                                    // 由于ha重启会丢失实体,所以需要重新同步一次实体
+                                    if (reconnect) {
+                                        syncDevice2Ha_1.default({
+                                            syncLovelace: true,
+                                            sleepTime: 2000,
+                                        });
+                                    }
                                     _this.client.removeEventListener('message', handler);
                                 }
                             }
@@ -93,6 +121,28 @@ var HaSocket = /** @class */ (function () {
                     })];
             });
         });
+    };
+    HaSocket.prototype.heartBeat = function () {
+        var _this = this;
+        setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
+            var res;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.query({
+                            type: 'ping',
+                        })];
+                    case 1:
+                        res = _a.sent();
+                        console.log('HA-WS heartBeat:', res);
+                        if (res === -1) {
+                            // 重新建立连接，并绑定call_service事件
+                            initHaSocket_1.default(true);
+                        }
+                        this.heartBeat();
+                        return [2 /*return*/];
+                }
+            });
+        }); }, 15000);
     };
     HaSocket.prototype.subscribeEvents = function (eventType) {
         this.client.send(JSON.stringify({
@@ -119,13 +169,25 @@ var HaSocket = /** @class */ (function () {
             var cur, handler;
             var _this = this;
             return __generator(this, function (_a) {
+                if (this.client.readyState !== 1) {
+                    console.log('与HA-WS连接未建立，建议重启Addon');
+                    return [2 /*return*/, -1];
+                }
                 cur = this.count++;
                 return [2 /*return*/, new Promise(function (resolve) {
                         _this.client.send(JSON.stringify(__assign({ id: cur }, data)));
+                        // 设置超时
+                        setTimeout(function () {
+                            resolve(-1);
+                        }, 5000);
                         _this.client.on('message', (handler = function (res) {
                             try {
                                 var data_1 = JSON.parse(res);
                                 if (data_1.id === cur) {
+                                    // 心跳信息
+                                    if (!data_1.result && data_1.type) {
+                                        resolve(data_1.type);
+                                    }
                                     resolve(data_1.result);
                                     _this.client.removeEventListener('message', handler);
                                 }

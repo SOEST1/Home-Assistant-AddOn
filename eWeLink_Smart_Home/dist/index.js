@@ -72,6 +72,8 @@ var initHaSocket_1 = __importDefault(require("./utils/initHaSocket"));
 var initCkApi_1 = __importDefault(require("./utils/initCkApi"));
 var app_1 = require("./config/app");
 var config_1 = require("./config/config");
+var sleep_1 = __importDefault(require("./utils/sleep"));
+var generateLovelace_1 = __importDefault(require("./utils/generateLovelace"));
 coolkit_open_api_1.default.init({
     appId: app_1.appId,
     appSecret: app_1.appSecret,
@@ -100,6 +102,10 @@ coolkit_open_api_1.default.init({
                 return [4 /*yield*/, initCkApi_1.default()];
             case 3:
                 _a.sent(); // 初始化v2接口并保持登录
+                return [4 /*yield*/, sleep_1.default(3000)];
+            case 4:
+                _a.sent();
+                generateLovelace_1.default();
                 return [2 /*return*/];
         }
     });

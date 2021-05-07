@@ -60,17 +60,15 @@ var CloudDoubleColorLightController = /** @class */ (function (_super) {
     function CloudDoubleColorLightController(params) {
         var _this = _super.call(this, params) || this;
         _this.uiid = 103;
-        var ltype = params.params.ltype;
         _this.entityId = "light." + params.deviceId;
         _this.deviceName = params.deviceName;
-        _this.apikey = params.apikey;
         _this.disabled = params.disabled;
-        _this.ltype = ltype;
+        _this.params = params.params;
+        var ltype = params.params.ltype;
         var _a = params.params[ltype], br = _a.br, ct = _a.ct;
+        _this.ltype = ltype;
         _this.br = br;
         _this.ct = 255 - ct;
-        _this.online = params.online;
-        _this.params = params.params;
         return _this;
     }
     return CloudDoubleColorLightController;
@@ -82,9 +80,6 @@ CloudDoubleColorLightController.prototype.updateLight = function (_a) {
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
-                    if (this.disabled) {
-                        return [2 /*return*/];
-                    }
                     tmp = {};
                     if (status === 'off') {
                         tmp.switch = 'off';
@@ -99,7 +94,7 @@ CloudDoubleColorLightController.prototype.updateLight = function (_a) {
                         };
                     }
                     return [4 /*yield*/, coolkit_ws_1.default.updateThing({
-                            deviceApikey: this.apikey,
+                            ownerApikey: this.apikey,
                             deviceid: this.deviceId,
                             params: tmp,
                         })];
@@ -119,8 +114,11 @@ CloudDoubleColorLightController.prototype.updateLight = function (_a) {
  */
 CloudDoubleColorLightController.prototype.updateState = function (params) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, status, ltype, br, ct, tmp, tmpBr, tmpCt;
+        var _a, status, ltype, br, ct, tmp, tmpBr, tmpCt, state;
         return __generator(this, function (_b) {
+            if (this.disabled) {
+                return [2 /*return*/];
+            }
             _a = params.switch, status = _a === void 0 ? 'on' : _a, ltype = params.ltype;
             tmp = params[ltype];
             if (tmp) {
@@ -128,14 +126,18 @@ CloudDoubleColorLightController.prototype.updateState = function (params) {
                 br = tmpBr;
                 ct = tmpCt;
             }
+            state = status;
+            if (!this.online) {
+                state = 'unavailable';
+            }
             restApi_1.updateStates(this.entityId, {
                 entity_id: this.entityId,
-                state: status,
+                state: state,
                 attributes: {
                     restored: true,
                     supported_features: 3,
                     friendly_name: this.deviceName,
-                    state: status,
+                    state: state,
                     min_mireds: 1,
                     max_mireds: 255,
                     light_type: ltype,

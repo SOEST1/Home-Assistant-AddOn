@@ -43,15 +43,17 @@ var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var app_1 = require("../config/app");
 var dataUtil_1 = require("../utils/dataUtil");
 (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var at, apikey, result;
+    var at, apikey, region, result;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 at = dataUtil_1.getDataSync('user.json', ['at']);
                 apikey = dataUtil_1.getDataSync('user.json', ['user', 'apikey']);
+                region = dataUtil_1.getDataSync('user.json', ['region']);
                 return [4 /*yield*/, coolkit_ws_1.default.init({
                         appid: app_1.appId,
-                        secret: app_1.appSecret,
+                        region: region,
+                        userAgent: 'app',
                         at: at,
                         apikey: apikey,
                     })];

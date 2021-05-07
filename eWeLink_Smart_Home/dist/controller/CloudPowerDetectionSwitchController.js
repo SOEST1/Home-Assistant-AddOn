@@ -88,7 +88,7 @@ CloudPowerDetectionSwitchController.prototype.updateSwitch = function (status) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
-                        deviceApikey: this.apikey,
+                        ownerApikey: this.apikey,
                         deviceid: this.deviceId,
                         params: {
                             switch: status,
@@ -111,29 +111,33 @@ CloudPowerDetectionSwitchController.prototype.updateSwitch = function (status) {
 CloudPowerDetectionSwitchController.prototype.updateState = function (_a) {
     var power = _a.power, current = _a.current, voltage = _a.voltage, status = _a.status;
     return __awaiter(this, void 0, void 0, function () {
-        var res;
+        var state, res;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     if (this.disabled) {
                         return [2 /*return*/];
                     }
+                    state = status;
+                    if (!this.online) {
+                        state = 'unavailable';
+                    }
                     return [4 /*yield*/, restApi_1.updateStates(this.entityId, {
                             entity_id: this.entityId,
-                            state: status || this.state,
+                            state: state || this.state,
                             attributes: {
                                 restored: true,
                                 supported_features: 0,
                                 friendly_name: this.deviceName,
-                                power: (power || this.power) + " W",
-                                current: (current || this.current) + " A",
-                                voltage: (voltage || this.voltage) + " V",
-                                state: status || this.state,
+                                power: (power || this.power || 0) + " W",
+                                current: (current || this.current || 0) + " A",
+                                voltage: (voltage || this.voltage || 0) + " V",
+                                state: state || this.state,
                             },
                         })];
                 case 1:
                     res = _b.sent();
-                    status && (this.state = status);
+                    state && (this.state = state);
                     power && (this.power = power);
                     current && (this.current = current);
                     voltage && (this.voltage = voltage);

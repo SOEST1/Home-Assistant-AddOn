@@ -62,7 +62,6 @@ var CloudDimmingController = /** @class */ (function (_super) {
         _this.uiid = 36;
         _this.entityId = "light." + params.deviceId;
         _this.disabled = params.disabled;
-        _this.online = params.online;
         _this.params = params.params;
         return _this;
     }
@@ -76,7 +75,7 @@ CloudDimmingController.prototype.updateLight = function (params) {
                 case 0:
                     console.log('Jia ~ file: CloudDimmingController.ts ~ line 30 ~ params', params);
                     return [4 /*yield*/, coolkit_ws_1.default.updateThing({
-                            deviceApikey: this.apikey,
+                            ownerApikey: this.apikey,
                             deviceid: this.deviceId,
                             params: params,
                         })];
@@ -94,18 +93,23 @@ CloudDimmingController.prototype.updateLight = function (params) {
 CloudDimmingController.prototype.updateState = function (_a) {
     var status = _a.status, bright = _a.bright;
     return __awaiter(this, void 0, void 0, function () {
+        var state;
         return __generator(this, function (_b) {
             if (this.disabled) {
                 return [2 /*return*/];
             }
+            state = status;
+            if (!this.online) {
+                state = 'unavailable';
+            }
             restApi_1.updateStates(this.entityId, {
                 entity_id: this.entityId,
-                state: status,
+                state: state,
                 attributes: {
                     restored: true,
                     supported_features: 1,
                     friendly_name: this.deviceName,
-                    state: status,
+                    state: state,
                     brightness: bright * 2.55,
                 },
             });

@@ -84,7 +84,7 @@ var Controller = /** @class */ (function () {
         if (type === 2) {
             var params_1 = formatLanDevice_1.default(data);
             // 如果ip不存在说明该设备可能不支持局域网
-            if (!params_1 || !params_1.ip) {
+            if (!params_1 || (!params_1.ip && !params_1.target)) {
                 console.log('该设备不支持局域网', params_1 === null || params_1 === void 0 ? void 0 : params_1.deviceId);
                 return;
             }
@@ -104,6 +104,14 @@ var Controller = /** @class */ (function () {
                 Controller.deviceMap.set(id, lanDevice);
                 return lanDevice;
             }
+            // if (lanType === 'multifun_switch') {
+            //     const lanDevice = new LanDualR3Controller({
+            //         ...params,
+            //         disabled,
+            //     });
+            //     Controller.deviceMap.set(id, lanDevice);
+            //     return lanDevice;
+            // }
         }
         // CLOUD
         if (type === 4) {

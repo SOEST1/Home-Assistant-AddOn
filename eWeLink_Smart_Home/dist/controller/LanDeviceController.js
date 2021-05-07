@@ -5,8 +5,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var lanControlAuthenticationUtils_1 = __importDefault(require("../utils/lanControlAuthenticationUtils"));
 var LanDeviceController = /** @class */ (function () {
-    function LanDeviceController() {
+    function LanDeviceController(props) {
         this.type = 2;
+        var deviceId = props.deviceId, ip = props.ip, _a = props.port, port = _a === void 0 ? 8081 : _a, disabled = props.disabled, encryptedData = props.encryptedData, iv = props.iv;
+        this.ip = ip;
+        this.port = port;
+        this.deviceId = deviceId;
+        this.iv = iv;
+        this.disabled = disabled;
+        this.encryptedData = encryptedData;
+        this.online = true;
     }
     return LanDeviceController;
 }());

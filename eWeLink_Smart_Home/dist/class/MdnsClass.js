@@ -56,7 +56,7 @@ var Mdns = /** @class */ (function () {
      */
     Mdns.prototype.onResponse = function (callback) {
         this.mdns.on('response', function (packet) {
-            var _a, _b, _c, _d;
+            var _a, _b, _c, _d, _e;
             var answers = packet.answers;
             if (Array.isArray(answers)) {
                 var tmp = {};
@@ -130,7 +130,17 @@ var Mdns = /** @class */ (function () {
                     });
                     callback && callback(lanDevice);
                 }
-                if (((_d = tmp.txt) === null || _d === void 0 ? void 0 : _d.type) === 'enhanced_plug') {
+                if (((_d = tmp.txt) === null || _d === void 0 ? void 0 : _d.type) === 'multifun_switch') {
+                    var dualR3 = Controller_1.default.setDevice({
+                        id: key,
+                        data: tmp,
+                        type: 2,
+                        lanType: 'multifun_switch',
+                    });
+                    console.log('发现局域网的DualR3');
+                    callback && callback(dualR3);
+                }
+                if (((_e = tmp.txt) === null || _e === void 0 ? void 0 : _e.type) === 'enhanced_plug') {
                     // todo
                 }
             }

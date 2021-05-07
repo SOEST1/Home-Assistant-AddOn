@@ -1,15 +1,4 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -50,29 +39,39 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var coolkit_open_api_1 = __importDefault(require("coolkit-open-api"));
-var dataUtil_1 = require("./dataUtil");
 var getThings_1 = __importDefault(require("./getThings"));
-exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var loginParams, result;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                loginParams = dataUtil_1.getDataSync('user.json', ['login']);
-                if (!loginParams) return [3 /*break*/, 4];
-                return [4 /*yield*/, coolkit_open_api_1.default.user.login(loginParams)];
-            case 1:
-                result = _a.sent();
-                if (!(result.error === 0)) return [3 /*break*/, 4];
-                console.log('重新登录成功！');
-                return [4 /*yield*/, dataUtil_1.saveData('user.json', JSON.stringify(__assign(__assign({}, result.data), { login: loginParams })))];
-            case 2:
-                _a.sent();
-                return [4 /*yield*/, getThings_1.default()];
-            case 3:
-                _a.sent();
-                _a.label = 4;
-            case 4: return [2 /*return*/];
-        }
+var initMdns_1 = __importDefault(require("../utils/initMdns"));
+var generateLovelace_1 = __importDefault(require("./generateLovelace"));
+var sleep_1 = __importDefault(require("./sleep"));
+var mdns = initMdns_1.default();
+exports.default = (function (_a) {
+    var syncLovelace = _a.syncLovelace, sleepTime = _a.sleepTime;
+    return __awaiter(void 0, void 0, void 0, function () {
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    mdns.query({
+                        questions: [
+                            {
+                                name: '_ewelink._tcp.local',
+                                type: 'PTR',
+                            },
+                        ],
+                    });
+                    return [4 /*yield*/, getThings_1.default()];
+                case 1:
+                    _b.sent();
+                    if (!(sleepTime !== undefined)) return [3 /*break*/, 3];
+                    return [4 /*yield*/, sleep_1.default(sleepTime)];
+                case 2:
+                    _b.sent();
+                    _b.label = 3;
+                case 3:
+                    if (syncLovelace) {
+                        generateLovelace_1.default();
+                    }
+                    return [2 /*return*/];
+            }
+        });
     });
-}); });
+});

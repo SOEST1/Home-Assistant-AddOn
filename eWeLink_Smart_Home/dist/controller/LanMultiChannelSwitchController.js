@@ -57,17 +57,11 @@ var restApi_1 = require("../apis/restApi");
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
 var LanMultiChannelSwitchController = /** @class */ (function (_super) {
     __extends(LanMultiChannelSwitchController, _super);
-    function LanMultiChannelSwitchController(_a) {
-        var deviceId = _a.deviceId, ip = _a.ip, _b = _a.port, port = _b === void 0 ? 8081 : _b, disabled = _a.disabled, encryptedData = _a.encryptedData, iv = _a.iv;
-        var _this = _super.call(this) || this;
-        _this.deviceId = deviceId;
-        _this.ip = ip;
-        _this.port = port;
+    function LanMultiChannelSwitchController(props) {
+        var _this = this;
+        var deviceId = props.deviceId;
+        _this = _super.call(this, props) || this;
         _this.entityId = "switch." + deviceId;
-        _this.disabled = disabled;
-        _this.iv = iv;
-        _this.encryptedData = encryptedData;
-        _this.online = true;
         return _this;
     }
     return LanMultiChannelSwitchController;
@@ -80,7 +74,7 @@ LanMultiChannelSwitchController.prototype.setSwitch = function (switches) {
                 case 0:
                     if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
                     return [4 /*yield*/, lanDeviceApi_1.setSwitches({
-                            ip: this.ip,
+                            ip: this.ip || this.target,
                             port: this.port,
                             deviceid: this.deviceId,
                             devicekey: this.devicekey,
@@ -110,14 +104,18 @@ LanMultiChannelSwitchController.prototype.updateState = function (switches) {
             switches.forEach(function (_a) {
                 var outlet = _a.outlet, status = _a.switch;
                 var name = _this.channelName ? _this.channelName[outlet] : outlet + 1;
+                var state = status;
+                if (!_this.online) {
+                    state = 'unavailable';
+                }
                 restApi_1.updateStates(_this.entityId + "_" + (outlet + 1), {
                     entity_id: _this.entityId + "_" + (outlet + 1),
-                    state: status,
+                    state: state,
                     attributes: {
                         restored: true,
                         supported_features: 0,
                         friendly_name: _this.deviceName + "-" + name,
-                        state: status,
+                        state: state,
                     },
                 });
             });

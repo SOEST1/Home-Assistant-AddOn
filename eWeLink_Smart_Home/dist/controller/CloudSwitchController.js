@@ -75,7 +75,7 @@ CloudSwitchController.prototype.updateSwitch = function (status) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
-                        deviceApikey: this.apikey,
+                        ownerApikey: this.apikey,
                         deviceid: this.deviceId,
                         params: {
                             switch: status,
@@ -97,18 +97,23 @@ CloudSwitchController.prototype.updateSwitch = function (status) {
  */
 CloudSwitchController.prototype.updateState = function (status) {
     return __awaiter(this, void 0, void 0, function () {
+        var state;
         return __generator(this, function (_a) {
             if (this.disabled) {
                 return [2 /*return*/];
             }
+            state = status;
+            if (!this.online) {
+                state = 'unavailable';
+            }
             restApi_1.updateStates(this.entityId, {
                 entity_id: this.entityId,
-                state: status,
+                state: state,
                 attributes: {
                     restored: true,
                     supported_features: 0,
                     friendly_name: this.deviceName,
-                    state: status,
+                    state: state,
                 },
             });
             return [2 /*return*/];

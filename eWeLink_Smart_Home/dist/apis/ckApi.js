@@ -42,8 +42,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getOTAinfoAPI = exports.updateChannelNameAPI = exports.updateDeviceNameAPI = void 0;
 var coolkit_open_api_1 = __importDefault(require("coolkit-open-api"));
 /**
- *
- *
  * @param {string} deviceid
  * @param {string} name
  * @description 修改设备名称

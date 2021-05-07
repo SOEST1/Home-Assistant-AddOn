@@ -189,7 +189,7 @@ CloudRGBLightController.prototype.updateLight = function (params) {
                         return [2 /*return*/];
                     }
                     return [4 /*yield*/, coolkit_ws_1.default.updateThing({
-                            deviceApikey: this.apikey,
+                            ownerApikey: this.apikey,
                             deviceid: this.deviceId,
                             params: params,
                         })];
@@ -232,15 +232,23 @@ CloudRGBLightController.prototype.updateLight = function (params) {
 CloudRGBLightController.prototype.updateState = function (_a) {
     var status = _a.status, brightness = _a.brightness, colorTemp = _a.colorTemp, hsColor = _a.hsColor;
     return __awaiter(this, void 0, void 0, function () {
+        var state;
         return __generator(this, function (_b) {
+            if (this.disabled) {
+                return [2 /*return*/];
+            }
+            state = status;
+            if (!this.online) {
+                state = 'unavailable';
+            }
             restApi_1.updateStates(this.entityId, {
                 entity_id: this.entityId,
-                state: status,
+                state: state,
                 attributes: {
                     restored: true,
                     supported_features: 19,
                     friendly_name: this.deviceName,
-                    state: status,
+                    state: state,
                     min_mireds: 1,
                     max_mireds: 3,
                     brightness: brightness !== undefined ? brightness : this.brightness,

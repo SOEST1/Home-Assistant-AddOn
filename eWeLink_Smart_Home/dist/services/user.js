@@ -90,6 +90,8 @@ var LanDeviceController_1 = __importDefault(require("../controller/LanDeviceCont
 var CloudDeviceController_1 = __importDefault(require("../controller/CloudDeviceController"));
 var restApi_1 = require("../apis/restApi");
 var AuthClass_1 = __importDefault(require("../class/AuthClass"));
+var generateLovelace_1 = __importDefault(require("../utils/generateLovelace"));
+var removeEntityByDevice_1 = __importDefault(require("../utils/removeEntityByDevice"));
 /**
  * @param {string} lang
  * @param {string} email
@@ -98,7 +100,7 @@ var AuthClass_1 = __importDefault(require("../class/AuthClass"));
  * @param {string} phoneNumber
  */
 var login = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, countryCode, phoneNumber, lang, password, email, result, at, apikey, err_1;
+    var _a, countryCode, phoneNumber, lang, password, email, result, at, apikey, region, err_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
@@ -118,11 +120,13 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
                 dataUtil_1.saveData('user.json', JSON.stringify(__assign(__assign({}, result.data), { login: __assign({}, req.body) })));
                 at = lodash_1.default.get(result, ['data', 'at']);
                 apikey = lodash_1.default.get(result, ['data', 'user', 'apikey']);
+                region = lodash_1.default.get(result, ['data', 'region']);
                 return [4 /*yield*/, coolkit_ws_1.default.init({
                         appid: app_1.appId,
-                        secret: app_1.appSecret,
                         at: at,
                         apikey: apikey,
+                        region: region,
+                        userAgent: 'app',
                     })];
             case 2:
                 _b.sent();
@@ -130,6 +134,7 @@ var login = function (req, res) { return __awaiter(void 0, void 0, void 0, funct
             case 3:
                 _b.sent();
                 eventBus_1.default.emit('sse');
+                generateLovelace_1.default();
                 _b.label = 4;
             case 4:
                 res.json(result);
@@ -158,6 +163,7 @@ var logout = function (req, res) { return __awaiter(void 0, void 0, void 0, func
                 try {
                     for (_a = __values(Controller_1.default.deviceMap.entries()), _b = _a.next(); !_b.done; _b = _a.next()) {
                         _c = __read(_b.value, 2), id = _c[0], device = _c[1];
+                        removeEntityByDevice_1.default(device);
                         if (device instanceof LanDeviceController_1.default) {
                             device.selfApikey = undefined;
                             device.devicekey = undefined;
@@ -177,6 +183,7 @@ var logout = function (req, res) { return __awaiter(void 0, void 0, void 0, func
                     }
                     finally { if (e_1) throw e_1.error; }
                 }
+                Controller_1.default.unsupportDeviceMap.clear();
                 return [4 /*yield*/, coolkit_open_api_1.default.user.logout()];
             case 2:
                 ckRes = _e.sent();

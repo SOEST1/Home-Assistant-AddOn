@@ -52,104 +52,85 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
+var lanDeviceApi_1 = require("../apis/lanDeviceApi");
 var restApi_1 = require("../apis/restApi");
-var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
-var dataUtil_1 = require("../utils/dataUtil");
-var CloudTandHModificationController = /** @class */ (function (_super) {
-    __extends(CloudTandHModificationController, _super);
-    function CloudTandHModificationController(params) {
-        var _this = _super.call(this, params) || this;
-        _this.uiid = 15;
-        _this.params = params.params;
-        _this.entityId = "switch." + params.deviceId;
-        _this.disabled = params.disabled || false;
-        _this.online = params.online;
-        _this.unit = dataUtil_1.getDataSync('unit.json', [_this.deviceId]) || 'c';
+var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
+/**
+ *
+ *
+ * @class LanDualR3Controller
+ * @extends {LanDeviceController}
+ * @deprecated 局域网控制有问题，dualR3可能不支持局域网
+ */
+var LanDualR3Controller = /** @class */ (function (_super) {
+    __extends(LanDualR3Controller, _super);
+    function LanDualR3Controller(props) {
+        var _this = this;
+        var deviceId = props.deviceId;
+        _this = _super.call(this, props) || this;
+        _this.entityId = "switch." + deviceId;
         return _this;
     }
-    return CloudTandHModificationController;
-}(CloudDeviceController_1.default));
-CloudTandHModificationController.prototype.updateSwitch = function (status) {
+    return LanDualR3Controller;
+}(LanDeviceController_1.default));
+LanDualR3Controller.prototype.setSwitch = function (switches) {
     return __awaiter(this, void 0, void 0, function () {
         var res;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
-                        ownerApikey: this.apikey,
-                        deviceid: this.deviceId,
-                        params: {
-                            switch: status,
-                        },
-                    })];
+                case 0:
+                    console.log('Jia ~ file: LanDualR3Controller.ts ~ line 48 ~ this.target', this.target);
+                    console.log('Jia ~ file: LanDualR3Controller.ts ~ line 48 ~ this.ip', this.ip);
+                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
+                    return [4 /*yield*/, lanDeviceApi_1.setSwitches({
+                            ip: this.ip || this.target,
+                            port: this.port,
+                            deviceid: this.deviceId,
+                            devicekey: this.devicekey,
+                            selfApikey: this.selfApikey,
+                            data: JSON.stringify({
+                                switches: switches,
+                            }),
+                        })];
                 case 1:
                     res = _a.sent();
-                    if (res.error === 0) {
-                        this.updateState(status);
-                        this.params.switch = status;
+                    if (res && res.data && res.data.error === 0) {
+                        this.updateState(switches);
                     }
-                    return [2 /*return*/];
+                    _a.label = 2;
+                case 2: return [2 /*return*/];
             }
         });
     });
 };
-/**
- * @description 更新状态到HA
- */
-CloudTandHModificationController.prototype.updateState = function (status) {
+LanDualR3Controller.prototype.updateState = function (switches) {
     return __awaiter(this, void 0, void 0, function () {
-        var state;
+        var _this = this;
         return __generator(this, function (_a) {
             if (this.disabled) {
                 return [2 /*return*/];
             }
-            state = status;
-            if (!this.online) {
-                state = 'unavailable';
-            }
-            restApi_1.updateStates("switch." + this.deviceId, {
-                entity_id: "switch." + this.deviceId,
-                state: state,
-                attributes: {
-                    restored: true,
-                    supported_features: 0,
-                    friendly_name: this.deviceName,
-                    state: state,
-                },
-            });
+            switches &&
+                switches.forEach(function (_a) {
+                    var outlet = _a.outlet, status = _a.switch;
+                    var name = _this.channelName ? _this.channelName[outlet] : outlet + 1;
+                    var state = status;
+                    if (!_this.online) {
+                        state = 'unavailable';
+                    }
+                    restApi_1.updateStates(_this.entityId + "_" + (outlet + 1), {
+                        entity_id: _this.entityId + "_" + (outlet + 1),
+                        state: state,
+                        attributes: {
+                            restored: true,
+                            supported_features: 0,
+                            friendly_name: _this.deviceName + "-" + name,
+                            state: state,
+                        },
+                    });
+                });
             return [2 /*return*/];
         });
     });
 };
-CloudTandHModificationController.prototype.updateTandH = function (currentTemperature, currentHumidity) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            restApi_1.updateStates("sensor." + this.deviceId + "_t", {
-                entity_id: "sensor." + this.deviceId + "_t",
-                state: currentTemperature,
-                attributes: {
-                    restored: true,
-                    supported_features: 0,
-                    friendly_name: this.deviceName + "-Temperature",
-                    device_class: 'temperature',
-                    state: currentTemperature,
-                    unit_of_measurement: '°C',
-                },
-            });
-            restApi_1.updateStates("sensor." + this.deviceId + "_h", {
-                entity_id: "sensor." + this.deviceId + "_h",
-                state: currentHumidity,
-                attributes: {
-                    restored: true,
-                    supported_features: 0,
-                    friendly_name: this.deviceName + "-Humidity",
-                    device_class: 'humidity',
-                    state: currentHumidity,
-                    unit_of_measurement: '%',
-                },
-            });
-            return [2 /*return*/];
-        });
-    });
-};
-exports.default = CloudTandHModificationController;
+exports.default = LanDualR3Controller;
