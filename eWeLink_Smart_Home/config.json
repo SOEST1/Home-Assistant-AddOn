@@ -1,6 +1,6 @@
 {
     "name": "eWeLink Smart Home",
-    "version": "2.0.3-beta",
+    "version": "2.0.4-beta",
     "slug": "ewelink_smart_home_slug",
     "description": "connect eWeLink with home-assistant",
     "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
@@ -24,7 +24,7 @@
     "ingress_entry": "",
     "options": {
         "auth": "",
-        "home_assistant_url": "http://homeassistant:8123"
+        "home_assistant_url": "http://homeassistant.local:8123"
     },
     "schema": {
         "auth": "str",

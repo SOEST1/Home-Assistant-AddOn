@@ -54,6 +54,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var lanDeviceApi_1 = require("../apis/lanDeviceApi");
 var restApi_1 = require("../apis/restApi");
+var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
 var LanDualR3Controller = /** @class */ (function (_super) {
     __extends(LanDualR3Controller, _super);
@@ -87,6 +88,7 @@ LanDualR3Controller.prototype.setSwitch = function (switches) {
                     res = _a.sent();
                     if (res && res.data && res.data.error === 0) {
                         this.updateState(switches);
+                        this.params = mergeDeviceParams_1.default(this.params, { switches: switches });
                     }
                     _a.label = 2;
                 case 2: return [2 /*return*/];

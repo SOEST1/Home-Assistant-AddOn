@@ -65,6 +65,7 @@ var restApi_1 = require("../apis/restApi");
 var CloudDoubleColorLightController_1 = __importDefault(require("../controller/CloudDoubleColorLightController"));
 var eventBus_1 = __importDefault(require("./eventBus"));
 var CloudDualR3Controller_1 = __importDefault(require("../controller/CloudDualR3Controller"));
+var LanDualR3Controller_1 = __importDefault(require("../controller/LanDualR3Controller"));
 var apikey = dataUtil_1.getDataSync('user.json', ['user', 'apikey']);
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
     var at, region;
@@ -148,7 +149,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                         console.log('接收到双色灯的信息：', tmp.params);
                                         device.updateState(tmp.params);
                                     }
-                                    if (device instanceof CloudDualR3Controller_1.default) {
+                                    if (device instanceof CloudDualR3Controller_1.default || device instanceof LanDualR3Controller_1.default) {
                                         console.log('接收到DualR3的信息：', tmp.params);
                                         if (tmp.params && tmp.params.switches) {
                                             device.updateState(tmp.params.switches);

@@ -56,6 +56,7 @@ var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController")
 var restApi_1 = require("../apis/restApi");
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var channelMap_1 = require("../config/channelMap");
+var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
 var CloudMultiChannelSwitchController = /** @class */ (function (_super) {
     __extends(CloudMultiChannelSwitchController, _super);
     function CloudMultiChannelSwitchController(params) {
@@ -88,6 +89,7 @@ CloudMultiChannelSwitchController.prototype.updateSwitch = function (switches) {
                     res = _a.sent();
                     if (res.error === 0) {
                         this.updateState(switches);
+                        this.params = mergeDeviceParams_1.default(this.params, { switches: switches });
                     }
                     return [2 /*return*/];
             }
