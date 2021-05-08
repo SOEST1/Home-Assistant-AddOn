@@ -7,8 +7,9 @@ var lanControlAuthenticationUtils_1 = __importDefault(require("../utils/lanContr
 var LanDeviceController = /** @class */ (function () {
     function LanDeviceController(props) {
         this.type = 2;
-        var deviceId = props.deviceId, ip = props.ip, _a = props.port, port = _a === void 0 ? 8081 : _a, disabled = props.disabled, encryptedData = props.encryptedData, iv = props.iv;
+        var deviceId = props.deviceId, ip = props.ip, _a = props.port, port = _a === void 0 ? 8081 : _a, disabled = props.disabled, encryptedData = props.encryptedData, iv = props.iv, target = props.target;
         this.ip = ip;
+        this.target = target;
         this.port = port;
         this.deviceId = deviceId;
         this.iv = iv;

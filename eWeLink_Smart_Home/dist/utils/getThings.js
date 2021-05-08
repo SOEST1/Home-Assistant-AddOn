@@ -106,7 +106,6 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                 }
                                 if (old instanceof LanDualR3Controller_1.default) {
                                     old.channelName = tags === null || tags === void 0 ? void 0 : tags.ck_channel_name;
-                                    old.maxChannel = channelMap_1.getMaxChannelByUiid(extra.uiid);
                                     decryptData = old.parseEncryptedData();
                                     if (decryptData) {
                                         old.updateState(decryptData.switches);

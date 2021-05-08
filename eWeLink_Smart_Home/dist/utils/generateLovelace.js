@@ -56,8 +56,10 @@ var CloudDualR3Controller_1 = __importDefault(require("../controller/CloudDualR3
 var CloudMultiChannelSwitchController_1 = __importDefault(require("../controller/CloudMultiChannelSwitchController"));
 var CloudPowerDetectionSwitchController_1 = __importDefault(require("../controller/CloudPowerDetectionSwitchController"));
 var CloudSwitchController_1 = __importDefault(require("../controller/CloudSwitchController"));
+var CloudTandHModificationController_1 = __importDefault(require("../controller/CloudTandHModificationController"));
 var Controller_1 = __importDefault(require("../controller/Controller"));
 var DiyDeviceController_1 = __importDefault(require("../controller/DiyDeviceController"));
+var LanDualR3Controller_1 = __importDefault(require("../controller/LanDualR3Controller"));
 var LanMultiChannelSwitchController_1 = __importDefault(require("../controller/LanMultiChannelSwitchController"));
 var LanSwitchController_1 = __importDefault(require("../controller/LanSwitchController"));
 var generateLovelace = function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -108,9 +110,18 @@ var generateLovelace = function () { return __awaiter(void 0, void 0, void 0, fu
                         }
                         return "continue";
                     }
-                    if (device instanceof CloudMultiChannelSwitchController_1.default || device instanceof LanMultiChannelSwitchController_1.default || device instanceof CloudDualR3Controller_1.default) {
-                        console.log('Jia ~ file: generateLovelace.ts ~ line 24 ~ generateLovelace ~ device', device);
-                        if (!device.maxChannel || device.maxChannel === 1 || !device.deviceName) {
+                    if (device instanceof CloudMultiChannelSwitchController_1.default ||
+                        device instanceof LanMultiChannelSwitchController_1.default ||
+                        device instanceof CloudDualR3Controller_1.default ||
+                        device instanceof LanDualR3Controller_1.default) {
+                        if (device instanceof LanDualR3Controller_1.default) {
+                            console.log("Jia ~ file: generateLovelace.ts ~ line 71 ~ generateLovelace ~ device", device);
+                        }
+                        if (device.maxChannel === 1 && device.deviceName) {
+                            singalSwitchCard.entities.push(device.entityId + "_1");
+                            return "continue";
+                        }
+                        if (!device.maxChannel || !device.deviceName) {
                             return "continue";
                         }
                         var entities = Array.from({ length: device.maxChannel }, function (v, k) {
@@ -121,6 +132,23 @@ var generateLovelace = function () { return __awaiter(void 0, void 0, void 0, fu
                             entities: entities,
                             title: device.deviceName,
                             state_color: true,
+                            show_header_toggle: true,
+                        };
+                        var index = lodash_1.default.findIndex(lovelace_1.cards, { title: device.deviceName });
+                        if (~index) {
+                            lovelace_1.cards[index] = tmpCard;
+                        }
+                        else {
+                            lovelace_1.cards.push(tmpCard);
+                        }
+                    }
+                    if (device instanceof CloudTandHModificationController_1.default) {
+                        var tmpCard = {
+                            type: 'entities',
+                            entities: ["switch." + device.deviceId, "sensor." + device.deviceId + "_t", "sensor." + device.deviceId + "_h"],
+                            title: device.deviceName,
+                            state_color: true,
+                            show_header_toggle: false,
                         };
                         var index = lodash_1.default.findIndex(lovelace_1.cards, { title: device.deviceName });
                         if (~index) {

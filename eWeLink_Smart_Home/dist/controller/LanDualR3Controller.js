@@ -55,19 +55,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var lanDeviceApi_1 = require("../apis/lanDeviceApi");
 var restApi_1 = require("../apis/restApi");
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
-/**
- *
- *
- * @class LanDualR3Controller
- * @extends {LanDeviceController}
- * @deprecated 局域网控制有问题，dualR3可能不支持局域网
- */
 var LanDualR3Controller = /** @class */ (function (_super) {
     __extends(LanDualR3Controller, _super);
     function LanDualR3Controller(props) {
-        var _this = this;
+        var _this = _super.call(this, props) || this;
+        _this.maxChannel = 2;
         var deviceId = props.deviceId;
-        _this = _super.call(this, props) || this;
         _this.entityId = "switch." + deviceId;
         return _this;
     }
@@ -79,8 +72,6 @@ LanDualR3Controller.prototype.setSwitch = function (switches) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log('Jia ~ file: LanDualR3Controller.ts ~ line 48 ~ this.target', this.target);
-                    console.log('Jia ~ file: LanDualR3Controller.ts ~ line 48 ~ this.ip', this.ip);
                     if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
                     return [4 /*yield*/, lanDeviceApi_1.setSwitches({
                             ip: this.ip || this.target,
