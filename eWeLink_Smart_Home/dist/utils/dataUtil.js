@@ -48,6 +48,9 @@ var basePath = path_1.default.join('/data');
 if (config_1.debugMode || !config_1.isSupervisor) {
     basePath = path_1.default.join(__dirname, '../data');
 }
+if (!fs_1.default.existsSync(basePath)) {
+    fs_1.default.mkdirSync(basePath);
+}
 var getDataSync = function (fileName, namePath) {
     if (namePath === void 0) { namePath = []; }
     try {

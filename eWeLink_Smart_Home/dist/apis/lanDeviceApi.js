@@ -41,6 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setSwitches = exports.setSwitch = void 0;
 var axios_1 = __importDefault(require("axios"));
+var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var lanControlAuthenticationUtils_1 = __importDefault(require("../utils/lanControlAuthenticationUtils"));
 var setSwitch = function (params) { return __awaiter(void 0, void 0, void 0, function () {
     var ip, port, deviceid, devicekey, data, selfApikey, iv, reqData, res;
@@ -61,13 +62,23 @@ var setSwitch = function (params) { return __awaiter(void 0, void 0, void 0, fun
                         key: devicekey,
                     }),
                 };
-                return [4 /*yield*/, axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/switch", reqData).catch(function (e) {
-                        console.log('控制局域网单通道设备出错', reqData);
-                        return null;
-                    })];
-            case 1:
-                res = _a.sent();
-                return [2 /*return*/, res];
+                res = axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/switch", reqData);
+                res.catch(function (e) { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                console.log('控制局域网单通道设备出错', reqData);
+                                return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                                        deviceid: deviceid,
+                                        ownerApikey: selfApikey,
+                                        params: data,
+                                    })];
+                            case 1: return [2 /*return*/, _a.sent()];
+                        }
+                    });
+                }); });
+                return [4 /*yield*/, res];
+            case 1: return [2 /*return*/, _a.sent()];
         }
     });
 }); };
@@ -78,7 +89,7 @@ var setSwitches = function (params) { return __awaiter(void 0, void 0, void 0, f
         switch (_a.label) {
             case 0:
                 ip = params.ip, port = params.port, deviceid = params.deviceid, devicekey = params.devicekey, data = params.data, selfApikey = params.selfApikey;
-                console.log("Jia ~ file: lanDeviceApi.ts ~ line 28 ~ setSwitches ~ params", params);
+                console.log('Jia ~ file: lanDeviceApi.ts ~ line 28 ~ setSwitches ~ params', params);
                 iv = ("abcdef" + Date.now() + "abcdef").slice(0, 16);
                 reqData = {
                     iv: lanControlAuthenticationUtils_1.default.encryptionBase64(("abcdef" + Date.now() + "abcdef").slice(0, 16)),
@@ -92,12 +103,23 @@ var setSwitches = function (params) { return __awaiter(void 0, void 0, void 0, f
                         key: devicekey,
                     }),
                 };
-                return [4 /*yield*/, axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/switches", reqData).catch(function (e) {
-                        console.log('控制局域网多通道设备出错', reqData);
-                    })];
-            case 1:
-                res = _a.sent();
-                return [2 /*return*/, res];
+                res = axios_1.default.post("http://" + ip + ":" + port + "/zeroconf/switches", reqData);
+                res.catch(function (e) { return __awaiter(void 0, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                console.log('控制局域网多通道设备出错', reqData);
+                                return [4 /*yield*/, coolkit_ws_1.default.updateThing({
+                                        deviceid: deviceid,
+                                        ownerApikey: selfApikey,
+                                        params: data,
+                                    })];
+                            case 1: return [2 /*return*/, _a.sent()];
+                        }
+                    });
+                }); });
+                return [4 /*yield*/, res];
+            case 1: return [2 /*return*/, _a.sent()];
         }
     });
 }); };
