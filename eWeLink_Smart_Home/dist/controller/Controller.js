@@ -15,6 +15,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var lodash_1 = __importDefault(require("lodash"));
+var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
 var CloudSwitchController_1 = __importDefault(require("./CloudSwitchController"));
 var CloudTandHModificationController_1 = __importDefault(require("./CloudTandHModificationController"));
 var DiyDeviceController_1 = __importDefault(require("./DiyDeviceController"));
@@ -91,18 +92,31 @@ var Controller = /** @class */ (function () {
                 old.encryptedData = params_1 === null || params_1 === void 0 ? void 0 : params_1.encryptedData;
                 return old;
             }
+            // 如果设备之前是Cloud设备,需要保持设备的位置不变
+            var tmpIndex = void 0;
+            var oldDeviceParams = {};
+            if (old instanceof CloudDeviceController_1.default) {
+                oldDeviceParams = {
+                    index: old.index,
+                    devicekey: old.devicekey,
+                    selfApikey: old.apikey,
+                    deviceName: old.deviceName,
+                    extra: old.extra,
+                    params: old.params,
+                };
+            }
             if (lanType === 'plug') {
-                var lanDevice = new LanSwitchController_1.default(__assign(__assign({}, params_1), { disabled: disabled }));
+                var lanDevice = new LanSwitchController_1.default(__assign(__assign({}, params_1), { disabled: disabled, index: tmpIndex }));
                 Controller.deviceMap.set(id, lanDevice);
                 return lanDevice;
             }
             if (lanType === 'strip') {
-                var lanDevice = new LanMultiChannelSwitchController_1.default(__assign(__assign({}, params_1), { disabled: disabled }));
+                var lanDevice = new LanMultiChannelSwitchController_1.default(__assign(__assign({}, params_1), { disabled: disabled, index: tmpIndex }));
                 Controller.deviceMap.set(id, lanDevice);
                 return lanDevice;
             }
             if (lanType === 'multifun_switch') {
-                var lanDevice = new LanDualR3Controller_1.default(__assign(__assign({}, params_1), { disabled: disabled }));
+                var lanDevice = new LanDualR3Controller_1.default(__assign(__assign({}, params_1), { disabled: disabled, index: tmpIndex }));
                 Controller.deviceMap.set(id, lanDevice);
                 return lanDevice;
             }
@@ -118,6 +132,7 @@ var Controller = /** @class */ (function () {
                     extra: tmp.extra,
                     params: tmp.params,
                     online: tmp.online,
+                    devicekey: tmp.devicekey,
                     disabled: disabled,
                     index: _index,
                 });
@@ -134,6 +149,7 @@ var Controller = /** @class */ (function () {
                     params: tmp.params,
                     tags: tmp.tags,
                     online: tmp.online,
+                    devicekey: tmp.devicekey,
                     disabled: disabled,
                     index: _index,
                 });
@@ -150,6 +166,7 @@ var Controller = /** @class */ (function () {
                     extra: tmp.extra,
                     params: tmp.params,
                     online: tmp.online,
+                    devicekey: tmp.devicekey,
                     disabled: disabled,
                     index: _index,
                 });
@@ -182,6 +199,7 @@ var Controller = /** @class */ (function () {
                     extra: tmp.extra,
                     params: tmp.params,
                     online: tmp.online,
+                    devicekey: tmp.devicekey,
                     disabled: disabled,
                     index: _index,
                 });
@@ -245,6 +263,7 @@ var Controller = /** @class */ (function () {
                     apikey: tmp.apikey,
                     extra: tmp.extra,
                     params: tmp.params,
+                    devicekey: tmp.devicekey,
                     disabled: disabled,
                     online: tmp.online,
                     index: _index,
