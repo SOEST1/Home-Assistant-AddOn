@@ -1,5 +1,7 @@
 # Home-Assistant-AddOn
 
+# **以下安装教程仅适用 v2.0.6-beta 及其之前的版本**
+
 ## 通过 Add-on 安装
 
 -   参考[Wiki](https://gitee.com/eWeLink/Home-Assistant-AddOn/wikis/%E4%BD%BF%E7%94%A8%E7%AE%80%E4%BB%8B?sort_id=3862199)

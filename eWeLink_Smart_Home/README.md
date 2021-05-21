@@ -2,7 +2,7 @@
 
 ## Help
 
--   如果遇到`Failed to call service switch/turn_on. Service not found.`的问题。建议使用`File editor`编辑`configuration.yaml`。在文件尾部追加以下内容：
+-   如果遇到`Failed to call service switch/turn_on. Service not found.`的问题。建议使用 HomeAssistant 自带的 Addon`File editor`编辑`configuration.yaml`。在文件尾部追加以下内容：
 
 ```
 switch:
@@ -15,3 +15,5 @@ switch:
           service: switch.turn_off
 
 ```
+
+保存成功后重启 HomeAssistant 即可
