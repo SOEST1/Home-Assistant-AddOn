@@ -1,4 +1,17 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -39,25 +52,58 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAuth = void 0;
-var axios_1 = __importDefault(require("axios"));
-var SUPERVISOR_TOKEN = process.env.SUPERVISOR_TOKEN;
-var supervisorRequest = axios_1.default.create({
-    baseURL: 'http://supervisor',
-    headers: {
-        'Content-Type': 'application/json',
-        'X-Supervisor-Token': "Bearer " + SUPERVISOR_TOKEN,
-    },
-});
-var getAuth = function () { return __awaiter(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, supervisorRequest({
-                method: 'GET',
-                url: '/auth',
-            }).catch(function (e) {
-                console.log(e);
-                return null;
-            })];
+var restApi_1 = require("../apis/restApi");
+var ZigbeeDeviceController_1 = __importDefault(require("./ZigbeeDeviceController"));
+var ZigbeeUIID2026Controller = /** @class */ (function (_super) {
+    __extends(ZigbeeUIID2026Controller, _super);
+    function ZigbeeUIID2026Controller(props) {
+        var _this = _super.call(this, props) || this;
+        _this.entityId = "binary_sensor." + _this.deviceId;
+        _this.params = props.params;
+        return _this;
+    }
+    return ZigbeeUIID2026Controller;
+}(ZigbeeDeviceController_1.default));
+/**
+ * @description 更新状态到HA
+ */
+ZigbeeUIID2026Controller.prototype.updateState = function (_a) {
+    var status = _a.motion, battery = _a.battery;
+    return __awaiter(this, void 0, void 0, function () {
+        var state;
+        return __generator(this, function (_b) {
+            if (this.disabled) {
+                return [2 /*return*/];
+            }
+            state = status === 1 ? 'on' : 'off';
+            if (!this.online) {
+                state = 'unavailable';
+            }
+            // 更新开关
+            restApi_1.updateStates(this.entityId + "_motion", {
+                entity_id: this.entityId + "_motion",
+                state: state,
+                attributes: {
+                    restored: false,
+                    friendly_name: this.deviceName + "-Motion",
+                    device_class: 'motion',
+                    state: state,
+                },
+            });
+            // 更新电量
+            restApi_1.updateStates("sensor." + this.deviceId + "_battery", {
+                entity_id: "sensor." + this.deviceId + "_battery",
+                state: battery,
+                attributes: {
+                    restored: false,
+                    friendly_name: this.deviceName + "-Battery",
+                    device_class: 'battery',
+                    unit_of_measurement: '%',
+                    state: battery,
+                },
+            });
+            return [2 /*return*/];
+        });
     });
-}); };
-exports.getAuth = getAuth;
+};
+exports.default = ZigbeeUIID2026Controller;

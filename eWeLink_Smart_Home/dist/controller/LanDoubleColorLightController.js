@@ -12,6 +12,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -55,76 +66,135 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var lodash_1 = __importDefault(require("lodash"));
 var lanDeviceApi_1 = require("../apis/lanDeviceApi");
 var restApi_1 = require("../apis/restApi");
-var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
+var light_1 = require("../config/light");
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
-var LanMultiChannelSwitchController = /** @class */ (function (_super) {
-    __extends(LanMultiChannelSwitchController, _super);
-    function LanMultiChannelSwitchController(props) {
-        var _this = this;
+var LanDoubleColorLightController = /** @class */ (function (_super) {
+    __extends(LanDoubleColorLightController, _super);
+    function LanDoubleColorLightController(props) {
+        var _this = _super.call(this, props) || this;
+        _this.effectList = light_1.doubleColorBulbEffectList;
         var deviceId = props.deviceId;
-        _this = _super.call(this, props) || this;
-        _this.entityId = "switch." + deviceId;
+        _this.entityId = "light." + deviceId;
         return _this;
     }
-    return LanMultiChannelSwitchController;
+    return LanDoubleColorLightController;
 }(LanDeviceController_1.default));
-LanMultiChannelSwitchController.prototype.setSwitch = function (switches) {
+LanDoubleColorLightController.prototype.parseHaData2Ck = function (params) {
+    var _a;
+    var state = params.state, brightness_pct = params.brightness_pct, effect = params.effect, color_temp = params.color_temp;
+    var res = {};
+    if (state === 'off') {
+        return {
+            switch: 'off',
+        };
+    }
+    // 从关闭到打开
+    if (!brightness_pct && !color_temp && !effect) {
+        var tmp = lodash_1.default.get(this, ['params', 'ltype']);
+        return _a = {
+                switch: 'on',
+                ltype: tmp
+            },
+            _a[tmp] = lodash_1.default.get(this, ['params', tmp]),
+            _a;
+    }
+    if (brightness_pct) {
+        res.ltype = 'white';
+        res.white = {
+            br: brightness_pct,
+            ct: lodash_1.default.get(this, ['params', 'white', 'ct']),
+        };
+    }
+    if (color_temp) {
+        res.ltype = 'white';
+        res.white = {
+            br: lodash_1.default.get(this, ['params', 'white', 'br']),
+            ct: 255 - color_temp,
+        };
+    }
+    if (effect) {
+        res = __assign(__assign({}, res), light_1.doubleColorBulbLtypeMap.get(effect));
+    }
+    return res;
+};
+LanDoubleColorLightController.prototype.updateLight = function (params) {
     return __awaiter(this, void 0, void 0, function () {
         var res;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 2];
-                    return [4 /*yield*/, lanDeviceApi_1.setSwitches({
+                    if (!(this.devicekey && this.selfApikey)) return [3 /*break*/, 5];
+                    res = void 0;
+                    if (!params.ltype) return [3 /*break*/, 2];
+                    return [4 /*yield*/, lanDeviceApi_1.updateLanLight({
                             ip: this.ip || this.target,
                             port: this.port,
                             deviceid: this.deviceId,
                             devicekey: this.devicekey,
                             selfApikey: this.selfApikey,
-                            data: JSON.stringify({
-                                switches: switches,
-                            }),
+                            data: JSON.stringify(params),
                         })];
                 case 1:
                     res = _a.sent();
+                    return [3 /*break*/, 4];
+                case 2: return [4 /*yield*/, lanDeviceApi_1.setSwitch({
+                        ip: this.ip || this.target,
+                        port: this.port,
+                        deviceid: this.deviceId,
+                        devicekey: this.devicekey,
+                        selfApikey: this.selfApikey,
+                        data: JSON.stringify(params),
+                    })];
+                case 3:
+                    res = _a.sent();
+                    _a.label = 4;
+                case 4:
                     if (lodash_1.default.get(res, ['data', 'error']) === 0) {
-                        this.updateState(switches);
-                        this.params = mergeDeviceParams_1.default(this.params, { switches: switches });
-                        return [2 /*return*/, 0];
+                        // todo
                     }
-                    _a.label = 2;
-                case 2: return [2 /*return*/, -1];
+                    _a.label = 5;
+                case 5: return [2 /*return*/, -1];
             }
         });
     });
 };
-LanMultiChannelSwitchController.prototype.updateState = function (switches) {
+LanDoubleColorLightController.prototype.updateState = function (params) {
     return __awaiter(this, void 0, void 0, function () {
-        var _this = this;
-        return __generator(this, function (_a) {
+        var _a, status, ltype, br, ct, tmp, state;
+        return __generator(this, function (_b) {
             if (this.disabled) {
                 return [2 /*return*/];
             }
-            switches.forEach(function (_a) {
-                var outlet = _a.outlet, status = _a.switch;
-                var name = _this.channelName ? _this.channelName[outlet] : outlet + 1;
-                var state = status;
-                if (!_this.online) {
-                    state = 'unavailable';
-                }
-                restApi_1.updateStates(_this.entityId + "_" + (outlet + 1), {
-                    entity_id: _this.entityId + "_" + (outlet + 1),
+            _a = params.switch, status = _a === void 0 ? 'on' : _a, ltype = params.ltype;
+            br = lodash_1.default.get(this, ['params', 'white', 'br']), ct = lodash_1.default.get(this, ['params', 'white', 'ct']);
+            tmp = params[ltype];
+            if (tmp) {
+                br = tmp.br;
+                ct = tmp.ct;
+            }
+            state = status;
+            if (!this.online) {
+                state = 'unavailable';
+            }
+            restApi_1.updateStates(this.entityId, {
+                entity_id: this.entityId,
+                state: state,
+                attributes: {
+                    restored: false,
+                    supported_features: 4,
+                    friendly_name: this.deviceName,
+                    supported_color_modes: ['color_temp'],
+                    effect_list: this.effectList,
                     state: state,
-                    attributes: {
-                        restored: false,
-                        supported_features: 0,
-                        friendly_name: _this.deviceName + "-" + name,
-                        state: state,
-                    },
-                });
+                    min_mireds: 1,
+                    max_mireds: 255,
+                    effect: ltype,
+                    brightness: (br * 2.55) >> 0,
+                    color_temp: 255 - ct,
+                },
             });
             return [2 /*return*/];
         });
     });
 };
-exports.default = LanMultiChannelSwitchController;
+exports.default = LanDoubleColorLightController;

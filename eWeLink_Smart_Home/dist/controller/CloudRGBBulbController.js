@@ -12,6 +12,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -55,54 +66,72 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
 var restApi_1 = require("../apis/restApi");
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
-var CloudDoubleColorLightController = /** @class */ (function (_super) {
-    __extends(CloudDoubleColorLightController, _super);
-    function CloudDoubleColorLightController(params) {
+var light_1 = require("../config/light");
+var CloudRGBBulbController = /** @class */ (function (_super) {
+    __extends(CloudRGBBulbController, _super);
+    function CloudRGBBulbController(params) {
         var _this = _super.call(this, params) || this;
-        _this.uiid = 103;
+        _this.uiid = 22;
+        _this.effectList = light_1.rgbBulbEffectList;
         _this.entityId = "light." + params.deviceId;
-        _this.deviceName = params.deviceName;
-        _this.disabled = params.disabled;
         _this.params = params.params;
-        var ltype = params.params.ltype;
-        var _a = params.params[ltype], br = _a.br, ct = _a.ct;
-        _this.ltype = ltype;
-        _this.br = br;
-        _this.ct = 255 - ct;
+        _this.disabled = params.disabled;
         return _this;
     }
-    return CloudDoubleColorLightController;
+    return CloudRGBBulbController;
 }(CloudDeviceController_1.default));
-CloudDoubleColorLightController.prototype.updateLight = function (_a) {
-    var _b = _a.switch, status = _b === void 0 ? 'on' : _b, br = _a.br, ct = _a.ct;
+CloudRGBBulbController.prototype.parseHaData2Ck = function (params) {
+    var rgbww_color = params.rgbww_color, brightness_pct = params.brightness_pct, effect = params.effect, state = params.state;
+    console.log('Jia ~ file: CloudRGBBulbController.ts ~ line 32 ~ state', state);
+    var res = {
+        state: state,
+    };
+    if (rgbww_color) {
+        res = __assign(__assign({}, res), { channel0: "" + rgbww_color[3], channel1: "" + rgbww_color[4], channel2: "" + rgbww_color[0], channel3: "" + rgbww_color[1], channel4: "" + rgbww_color[2], zyx_mode: 1 });
+        if (rgbww_color[0] !== 0 || rgbww_color[1] !== 0 || rgbww_color[2] !== 0) {
+            res = __assign(__assign({}, res), { channel0: '0', channel1: '0', zyx_mode: 2 });
+        }
+    }
+    if (brightness_pct) {
+        var tmp = (brightness_pct * 2.55).toFixed(0);
+        res = __assign(__assign({}, res), { channel0: tmp, channel1: tmp, zyx_mode: 1 });
+    }
+    if (effect) {
+        res = __assign(__assign(__assign({}, res), { zyx_mode: this.effectList.indexOf(effect) }), light_1.presetEffectMap.get(effect));
+    }
+    return res;
+};
+CloudRGBBulbController.prototype.parseCkData2Ha = function (params) {
+    var zyx_mode = params.zyx_mode, _a = params.state, state = _a === void 0 ? 'on' : _a, _b = params.channel0, channel0 = _b === void 0 ? this.params.channel0 : _b, _c = params.channel1, channel1 = _c === void 0 ? this.params.channel1 : _c, _d = params.channel2, channel2 = _d === void 0 ? this.params.channel2 : _d, _e = params.channel3, channel3 = _e === void 0 ? this.params.channel3 : _e, _f = params.channel4, channel4 = _f === void 0 ? this.params.channel4 : _f;
+    var res = {
+        state: state,
+        brightness: Math.max(+(channel0 || 0), +(channel1 || 0)),
+        rgbww_color: [+channel2, +channel3, +channel4, +channel0, +channel1],
+    };
+    if (zyx_mode) {
+        res.effect = this.effectList[zyx_mode || 0];
+    }
+    return res;
+};
+CloudRGBBulbController.prototype.updateLight = function (params) {
     return __awaiter(this, void 0, void 0, function () {
-        var tmp, res;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
-                    tmp = {};
-                    if (status === 'off') {
-                        tmp.switch = 'off';
-                    }
-                    else {
-                        tmp = {
-                            ltype: 'white',
-                            white: {
-                                br: br !== undefined ? br : this.br,
-                                ct: 255 - (ct !== undefined ? ct : this.ct),
-                            },
-                        };
+                    if (this.disabled) {
+                        return [2 /*return*/];
                     }
                     return [4 /*yield*/, coolkit_ws_1.default.updateThing({
                             ownerApikey: this.apikey,
                             deviceid: this.deviceId,
-                            params: tmp,
+                            params: params,
                         })];
                 case 1:
-                    res = _c.sent();
+                    res = _a.sent();
                     if (res.error === 0) {
-                        console.log('Jia ~ file: CloudDoubleColorLightController.ts ~ line 80 ~ tmp', tmp);
-                        this.updateState(tmp);
+                        this.params = __assign(__assign({}, this.params), params);
+                        this.updateState(this.parseCkData2Ha(params));
                     }
                     return [2 /*return*/];
             }
@@ -112,19 +141,13 @@ CloudDoubleColorLightController.prototype.updateLight = function (_a) {
 /**
  * @description 更新状态到HA
  */
-CloudDoubleColorLightController.prototype.updateState = function (params) {
+CloudRGBBulbController.prototype.updateState = function (params) {
     return __awaiter(this, void 0, void 0, function () {
-        var _a, status, ltype, br, ct, tmp, tmpBr, tmpCt, state;
-        return __generator(this, function (_b) {
+        var status, state;
+        return __generator(this, function (_a) {
+            status = params.state;
             if (this.disabled) {
                 return [2 /*return*/];
-            }
-            _a = params.switch, status = _a === void 0 ? 'on' : _a, ltype = params.ltype;
-            tmp = params[ltype];
-            if (tmp) {
-                tmpBr = tmp.br, tmpCt = tmp.ct;
-                br = tmpBr;
-                ct = tmpCt;
             }
             state = status;
             if (!this.online) {
@@ -133,24 +156,10 @@ CloudDoubleColorLightController.prototype.updateState = function (params) {
             restApi_1.updateStates(this.entityId, {
                 entity_id: this.entityId,
                 state: state,
-                attributes: {
-                    restored: true,
-                    supported_features: 3,
-                    friendly_name: this.deviceName,
-                    state: state,
-                    min_mireds: 1,
-                    max_mireds: 255,
-                    light_type: ltype,
-                    brightness: (br !== undefined ? br : this.br) * 2.55,
-                    color_temp: 255 - (ct !== undefined ? ct : this.ct),
-                },
+                attributes: __assign(__assign(__assign({ restored: false, supported_features: 4, friendly_name: this.deviceName, supported_color_modes: ['rgbww'], effect_list: this.effectList.slice(3) }, this.parseCkData2Ha(this.params)), params), { state: state }),
             });
-            if (status === 'on') {
-                br !== undefined && (this.br = br);
-                ct !== undefined && (this.ct = 255 - ct);
-            }
             return [2 /*return*/];
         });
     });
 };
-exports.default = CloudDoubleColorLightController;
+exports.default = CloudRGBBulbController;

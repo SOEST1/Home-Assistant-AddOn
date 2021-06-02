@@ -64,7 +64,6 @@ var CloudSwitchController = /** @class */ (function (_super) {
         _this.params = params.params;
         _this.disabled = params.disabled;
         _this.uiid = params.extra.uiid;
-        _this.online = params.online;
         return _this;
     }
     return CloudSwitchController;
@@ -110,7 +109,7 @@ CloudSwitchController.prototype.updateState = function (status) {
                 entity_id: this.entityId,
                 state: state,
                 attributes: {
-                    restored: true,
+                    restored: false,
                     supported_features: 0,
                     friendly_name: this.deviceName,
                     state: state,

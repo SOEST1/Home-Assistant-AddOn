@@ -65,40 +65,50 @@ var AuthClass = /** @class */ (function () {
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
-                        _c.trys.push([0, 5, , 6]);
+                        // 通过Addon方式安装自带TOKEN
+                        if (process.env.SUPERVISOR_TOKEN) {
+                            this.curAuth = process.env.SUPERVISOR_TOKEN;
+                            return [2 /*return*/];
+                        }
+                        _c.label = 1;
+                    case 1:
+                        _c.trys.push([1, 6, , 7]);
                         auths = dataUtil_1.getDataSync('auth.json', []);
                         _a = [];
                         for (_b in auths)
                             _a.push(_b);
                         _i = 0;
-                        _c.label = 1;
-                    case 1:
-                        if (!(_i < _a.length)) return [3 /*break*/, 4];
+                        _c.label = 2;
+                    case 2:
+                        if (!(_i < _a.length)) return [3 /*break*/, 5];
                         origin_1 = _a[_i];
                         auth = JSON.parse(auths[origin_1]);
-                        if (!(auth && Date.now() < +auth.expires_time)) return [3 /*break*/, 3];
+                        if (!(auth && Date.now() < +auth.expires_time)) return [3 /*break*/, 4];
                         AuthClass.AuthMap.set(origin_1, auth);
                         return [4 /*yield*/, this.refresh(origin_1)];
-                    case 2:
+                    case 3:
                         tmp = _c.sent();
                         if (tmp) {
                             this.curAuth = auth.access_token;
                         }
-                        _c.label = 3;
-                    case 3:
+                        _c.label = 4;
+                    case 4:
                         _i++;
-                        return [3 /*break*/, 1];
-                    case 4: return [3 /*break*/, 6];
-                    case 5:
+                        return [3 /*break*/, 2];
+                    case 5: return [3 /*break*/, 7];
+                    case 6:
                         error_1 = _c.sent();
                         console.log('Jia ~ file: AuthClass.ts ~ line 52 ~ AuthClass ~ init ~ error', error_1);
-                        return [3 /*break*/, 6];
-                    case 6: return [2 /*return*/];
+                        return [3 /*break*/, 7];
+                    case 7: return [2 /*return*/];
                 }
             });
         });
     };
     AuthClass.prototype.isValid = function (host) {
+        if (process.env.SUPERVISOR_TOKEN) {
+            return true;
+        }
         var auth = AuthClass.AuthMap.get(host);
         if (auth && auth.expires_time > Date.now()) {
             this.curAuth = auth.access_token;

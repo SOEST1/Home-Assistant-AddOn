@@ -1,5 +1,9 @@
 # Change Log
 
+## v2.1.1-beta
+
+-   修复已知问题，优化体验
+
 ## v2.1.0-beta
 
 -   **使用 HomeAsistant 内置的鉴权机制，优化认证流程**

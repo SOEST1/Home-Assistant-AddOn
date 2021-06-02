@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var config_1 = require("../config/config");
+var lodash_1 = __importDefault(require("lodash"));
 var url_1 = require("../config/url");
 var AuthClass_1 = __importDefault(require("../class/AuthClass"));
 var genAuthorizeUrl = function (hassUrl, clientId, redirectUrl, state) {
@@ -51,26 +51,21 @@ var genAuthorizeUrl = function (hassUrl, clientId, redirectUrl, state) {
     return authorizeUrl;
 };
 exports.default = (function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var url, hostname, protocol, code, _a, origin, host, ip, port, clientId;
-    return __generator(this, function (_b) {
-        url = req.url, hostname = req.hostname, protocol = req.protocol, code = req.query.code, _a = req.headers, origin = _a.origin, host = _a.host, ip = req.ip;
-        console.log('Jia ~ file: redirectToAuth.ts ~ line 27 ~ ip', ip);
-        port = config_1.debugMode ? ":" + 8000 : ":" + 3000;
-        clientId = protocol + '://' + hostname + port;
-        // if (origin === 'http://localhost:8000') {
+    var ip, headers;
+    return __generator(this, function (_a) {
+        ip = req.ip, headers = req.headers;
+        if (lodash_1.default.get(headers, 'cookie') && process.env.SUPERVISOR_TOKEN) {
+            next();
+            return [2 /*return*/];
+        }
         if (AuthClass_1.default.isValid(ip)) {
             next();
         }
         else {
-            // if (url === '/' || url.indexOf('/?code') === 0) {
-            //     next();
-            // } else {
-            //     console.log('Jia ~ file: redirectToAuth.ts ~ line 40 ~ url', url);
             res.json({
                 error: 302,
                 data: url_1.HaRestURL,
             });
-            // }
         }
         return [2 /*return*/];
     });

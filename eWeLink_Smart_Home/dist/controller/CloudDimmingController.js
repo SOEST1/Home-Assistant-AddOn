@@ -106,7 +106,7 @@ CloudDimmingController.prototype.updateState = function (_a) {
                 entity_id: this.entityId,
                 state: state,
                 attributes: {
-                    restored: true,
+                    restored: false,
                     supported_features: 1,
                     friendly_name: this.deviceName,
                     state: state,

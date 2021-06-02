@@ -54,78 +54,61 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var CloudDeviceController_1 = __importDefault(require("./CloudDeviceController"));
 var restApi_1 = require("../apis/restApi");
-var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
-var channelMap_1 = require("../config/channelMap");
-var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
-var CloudMultiChannelSwitchController = /** @class */ (function (_super) {
-    __extends(CloudMultiChannelSwitchController, _super);
-    function CloudMultiChannelSwitchController(params) {
-        var _a;
+var CloudDW2WiFiController = /** @class */ (function (_super) {
+    __extends(CloudDW2WiFiController, _super);
+    function CloudDW2WiFiController(params) {
         var _this = _super.call(this, params) || this;
-        _this.entityId = "switch." + params.deviceId;
-        _this.disabled = params.disabled;
-        _this.uiid = params.extra.uiid;
-        _this.channelName = (_a = params.tags) === null || _a === void 0 ? void 0 : _a.ck_channel_name;
-        _this.maxChannel = channelMap_1.getMaxChannelByUiid(params.extra.uiid);
-        _this.online = params.online;
+        _this.uiid = 102;
+        _this.entityId = "binary_sensor." + params.deviceId;
         _this.params = params.params;
+        _this.disabled = params.disabled;
+        _this.online = true;
+        _this.lowVolAlarm = params.devConfig.lowVolAlarm;
         return _this;
     }
-    return CloudMultiChannelSwitchController;
+    return CloudDW2WiFiController;
 }(CloudDeviceController_1.default));
-CloudMultiChannelSwitchController.prototype.updateSwitch = function (switches) {
-    return __awaiter(this, void 0, void 0, function () {
-        var res;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, coolkit_ws_1.default.updateThing({
-                        ownerApikey: this.apikey,
-                        deviceid: this.deviceId,
-                        params: {
-                            switches: switches,
-                        },
-                    })];
-                case 1:
-                    res = _a.sent();
-                    if (res.error === 0) {
-                        this.updateState(switches);
-                        this.params = mergeDeviceParams_1.default(this.params, { switches: switches });
-                    }
-                    return [2 /*return*/];
-            }
-        });
-    });
-};
 /**
  * @description 更新状态到HA
  */
-CloudMultiChannelSwitchController.prototype.updateState = function (switches) {
+CloudDW2WiFiController.prototype.updateState = function (_a) {
+    var status = _a.switch, battery = _a.battery;
     return __awaiter(this, void 0, void 0, function () {
-        var _this = this;
-        return __generator(this, function (_a) {
+        var state, batteryState;
+        return __generator(this, function (_b) {
             if (this.disabled) {
                 return [2 /*return*/];
             }
-            switches.forEach(function (_a) {
-                var outlet = _a.outlet, status = _a.switch;
-                var name = _this.channelName ? _this.channelName[outlet] : outlet + 1;
-                var state = status;
-                if (!_this.online) {
-                    state = 'unavailable';
-                }
-                restApi_1.updateStates(_this.entityId + "_" + (outlet + 1), {
-                    entity_id: _this.entityId + "_" + (outlet + 1),
+            state = status;
+            batteryState = battery < this.lowVolAlarm ? 'on' : 'off';
+            // if (!this.online) {
+            //     state = 'unavailable';
+            //     batteryState = 'unavailable';
+            // }
+            // 更新开关
+            restApi_1.updateStates(this.entityId + "_lock", {
+                entity_id: this.entityId + "_lock",
+                state: state,
+                attributes: {
+                    restored: false,
+                    friendly_name: this.deviceName + "-Lock",
+                    device_class: 'lock',
                     state: state,
-                    attributes: {
-                        restored: false,
-                        supported_features: 0,
-                        friendly_name: _this.deviceName + "-" + name,
-                        state: state,
-                    },
-                });
+                },
+            });
+            // 更新电量
+            restApi_1.updateStates(this.entityId + "_battery", {
+                entity_id: this.entityId + "_battery",
+                state: batteryState,
+                attributes: {
+                    restored: false,
+                    friendly_name: this.deviceName + "-Battery",
+                    device_class: 'battery',
+                    state: batteryState,
+                },
             });
             return [2 /*return*/];
         });
     });
 };
-exports.default = CloudMultiChannelSwitchController;
+exports.default = CloudDW2WiFiController;

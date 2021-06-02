@@ -45,23 +45,28 @@ var DiyDeviceController_1 = __importDefault(require("../controller/DiyDeviceCont
 var LanDeviceController_1 = __importDefault(require("../controller/LanDeviceController"));
 var CloudSwitchController_1 = __importDefault(require("../controller/CloudSwitchController"));
 var CloudTandHModificationController_1 = __importDefault(require("../controller/CloudTandHModificationController"));
-var CloudRGBLightController_1 = __importDefault(require("../controller/CloudRGBLightController"));
+var CloudRGBBulbController_1 = __importDefault(require("../controller/CloudRGBBulbController"));
 var CloudDimmingController_1 = __importDefault(require("../controller/CloudDimmingController"));
 var CloudPowerDetectionSwitchController_1 = __importDefault(require("../controller/CloudPowerDetectionSwitchController"));
 var CloudMultiChannelSwitchController_1 = __importDefault(require("../controller/CloudMultiChannelSwitchController"));
 var CloudRGBLightStripController_1 = __importDefault(require("../controller/CloudRGBLightStripController"));
 var LanMultiChannelSwitchController_1 = __importDefault(require("../controller/LanMultiChannelSwitchController"));
 var channelMap_1 = require("../config/channelMap");
-var CloudDoubleColorLightController_1 = __importDefault(require("../controller/CloudDoubleColorLightController"));
+var CloudDoubleColorBulbController_1 = __importDefault(require("../controller/CloudDoubleColorBulbController"));
 var LanSwitchController_1 = __importDefault(require("../controller/LanSwitchController"));
 var CloudDualR3Controller_1 = __importDefault(require("../controller/CloudDualR3Controller"));
 var dataUtil_1 = require("./dataUtil");
 var LanDualR3Controller_1 = __importDefault(require("../controller/LanDualR3Controller"));
 var LanTandHModificationController_1 = __importDefault(require("../controller/LanTandHModificationController"));
 var LanPowerDetectionSwitchController_1 = __importDefault(require("../controller/LanPowerDetectionSwitchController"));
+var CloudDW2WiFiController_1 = __importDefault(require("../controller/CloudDW2WiFiController"));
+var LanDoubleColorLightController_1 = __importDefault(require("../controller/LanDoubleColorLightController"));
+var CloudUIID104Controller_1 = __importDefault(require("../controller/CloudUIID104Controller"));
+var ZigbeeUIID3026Controller_1 = __importDefault(require("../controller/ZigbeeUIID3026Controller"));
+var ZigbeeUIID2026Controller_1 = __importDefault(require("../controller/ZigbeeUIID2026Controller"));
 // 获取设备并同步到HA
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
-    var lang, _a, error, data, thingList, i, item, deviceIndex, _b, extra, deviceid, name_1, params, devicekey, apikey, tags, old, decryptData, decryptData, decryptData, decryptData, device, status_1, power, voltage, current, data_1;
+    var lang, _a, error, data, thingList, i, item, deviceIndex, _b, extra, deviceid, name_1, params, devicekey, apikey, tags, old, decryptData, decryptData, decryptData, decryptData, decryptData, device, status_1, power, voltage, current;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
@@ -119,11 +124,17 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                         old.updateState(decryptData.switch);
                                     }
                                 }
+                                if (old instanceof LanDoubleColorLightController_1.default) {
+                                    decryptData = old.parseEncryptedData();
+                                    if (decryptData) {
+                                        old.updateState(decryptData);
+                                    }
+                                }
                                 continue;
                             }
                             device = Controller_1.default.setDevice({
                                 id: deviceid,
-                                type: 4,
+                                type: 12,
                                 data: item.itemData,
                                 index: deviceIndex,
                             });
@@ -134,7 +145,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                 !device.disabled && device.updateState(params.switch);
                                 !device.disabled && device.updateTandH(params.currentTemperature, params.currentHumidity);
                             }
-                            if (device instanceof CloudRGBLightController_1.default) {
+                            if (device instanceof CloudRGBBulbController_1.default) {
                                 !device.disabled && device.updateState(device.parseCkData2Ha(params));
                             }
                             if (device instanceof CloudDimmingController_1.default) {
@@ -158,15 +169,25 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                 !device.disabled && device.updateState(params.switches.slice(0, device.maxChannel));
                             }
                             if (device instanceof CloudRGBLightStripController_1.default) {
-                                data_1 = device.parseCkData2Ha(params);
-                                !device.disabled && device.updateState(data_1);
+                                !device.disabled && device.updateState(device.parseCkData2Ha(params));
                             }
-                            if (device instanceof CloudDoubleColorLightController_1.default) {
+                            if (device instanceof CloudDoubleColorBulbController_1.default) {
+                                !device.disabled && device.updateState(params);
+                            }
+                            if (device instanceof CloudUIID104Controller_1.default) {
                                 !device.disabled && device.updateState(params);
                             }
                             if (device instanceof CloudDualR3Controller_1.default) {
-                                console.log('Jia ~ file: getThings.ts ~ CloudDualR3Controller ~ params', params);
                                 !device.disabled && device.updateState(params.switches);
+                            }
+                            if (device instanceof CloudDW2WiFiController_1.default) {
+                                !device.disabled && device.updateState(params);
+                            }
+                            if (device instanceof ZigbeeUIID2026Controller_1.default) {
+                                !device.disabled && device.updateState(params);
+                            }
+                            if (device instanceof ZigbeeUIID3026Controller_1.default) {
+                                !device.disabled && device.updateState(params);
                             }
                         }
                     }

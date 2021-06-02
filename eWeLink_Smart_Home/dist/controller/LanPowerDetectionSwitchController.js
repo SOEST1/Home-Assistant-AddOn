@@ -121,7 +121,7 @@ LanPowerDetectionSwitchController.prototype.updateState = function (_a) {
                         state = 'unavailable';
                     }
                     attributes = {
-                        restored: true,
+                        restored: false,
                         supported_features: 0,
                         friendly_name: this.deviceName,
                         power: (power || lodash_1.default.get(this, ['params', 'power'], 0)) + " W",

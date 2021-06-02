@@ -247,7 +247,6 @@ var auth = function (req, res) { return __awaiter(void 0, void 0, void 0, functi
         switch (_b.label) {
             case 0:
                 _b.trys.push([0, 2, , 3]);
-                console.log('Jia ~ file: user.ts ~ line 110 ~ auth ~ req.body', req.body);
                 if (AuthClass_1.default.isValid(req.ip)) {
                     res.json({
                         error: 0,
