@@ -39,7 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var coolkit_open_api_1 = __importDefault(require("coolkit-open-api"));
+var coolkit_api_1 = __importDefault(require("coolkit-api"));
 var Controller_1 = __importDefault(require("../controller/Controller"));
 var DiyDeviceController_1 = __importDefault(require("../controller/DiyDeviceController"));
 var LanDeviceController_1 = __importDefault(require("../controller/LanDeviceController"));
@@ -62,8 +62,11 @@ var LanPowerDetectionSwitchController_1 = __importDefault(require("../controller
 var CloudDW2WiFiController_1 = __importDefault(require("../controller/CloudDW2WiFiController"));
 var LanDoubleColorLightController_1 = __importDefault(require("../controller/LanDoubleColorLightController"));
 var CloudUIID104Controller_1 = __importDefault(require("../controller/CloudUIID104Controller"));
-var ZigbeeUIID3026Controller_1 = __importDefault(require("../controller/ZigbeeUIID3026Controller"));
-var ZigbeeUIID2026Controller_1 = __importDefault(require("../controller/ZigbeeUIID2026Controller"));
+var CloudZigbeeUIID2026Controller_1 = __importDefault(require("../controller/CloudZigbeeUIID2026Controller"));
+var CloudZigbeeUIID3026Controller_1 = __importDefault(require("../controller/CloudZigbeeUIID3026Controller"));
+var CloudZigbeeUIID1770Controller_1 = __importDefault(require("../controller/CloudZigbeeUIID1770Controller"));
+var CloudZigbeeUIID1000Controller_1 = __importDefault(require("../controller/CloudZigbeeUIID1000Controller"));
+var CloudCoverController_1 = __importDefault(require("../controller/CloudCoverController"));
 // 获取设备并同步到HA
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
     var lang, _a, error, data, thingList, i, item, deviceIndex, _b, extra, deviceid, name_1, params, devicekey, apikey, tags, old, decryptData, decryptData, decryptData, decryptData, decryptData, device, status_1, power, voltage, current;
@@ -71,7 +74,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
         switch (_c.label) {
             case 0:
                 lang = dataUtil_1.getDataSync('user.json', ['region']) === 'cn' ? 'cn' : 'en';
-                return [4 /*yield*/, coolkit_open_api_1.default.device.getThingList({
+                return [4 /*yield*/, coolkit_api_1.default.device.getThingList({
                         lang: lang,
                     })];
             case 1:
@@ -82,7 +85,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                     for (i = 0; i < thingList.length; i++) {
                         item = thingList[i];
                         deviceIndex = item.index;
-                        if (item.itemType < 3) {
+                        if (item.itemType === 1 || item.itemType === 2) {
                             _b = item.itemData, extra = _b.extra, deviceid = _b.deviceid, name_1 = _b.name, params = _b.params, devicekey = _b.devicekey, apikey = _b.apikey, tags = _b.tags;
                             old = Controller_1.default.getDevice(deviceid);
                             if (old instanceof DiyDeviceController_1.default) {
@@ -166,7 +169,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                     });
                             }
                             if (device instanceof CloudMultiChannelSwitchController_1.default) {
-                                !device.disabled && device.updateState(params.switches.slice(0, device.maxChannel));
+                                !device.disabled && device.updateState(params.switches);
                             }
                             if (device instanceof CloudRGBLightStripController_1.default) {
                                 !device.disabled && device.updateState(device.parseCkData2Ha(params));
@@ -183,10 +186,19 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                             if (device instanceof CloudDW2WiFiController_1.default) {
                                 !device.disabled && device.updateState(params);
                             }
-                            if (device instanceof ZigbeeUIID2026Controller_1.default) {
+                            if (device instanceof CloudZigbeeUIID1000Controller_1.default) {
                                 !device.disabled && device.updateState(params);
                             }
-                            if (device instanceof ZigbeeUIID3026Controller_1.default) {
+                            if (device instanceof CloudZigbeeUIID1770Controller_1.default) {
+                                !device.disabled && device.updateState(params);
+                            }
+                            if (device instanceof CloudZigbeeUIID2026Controller_1.default) {
+                                !device.disabled && device.updateState(params);
+                            }
+                            if (device instanceof CloudZigbeeUIID3026Controller_1.default) {
+                                !device.disabled && device.updateState(params);
+                            }
+                            if (device instanceof CloudCoverController_1.default) {
                                 !device.disabled && device.updateState(params);
                             }
                         }

@@ -40,6 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var lodash_1 = __importDefault(require("lodash"));
+var config_1 = require("../config/config");
 var url_1 = require("../config/url");
 var AuthClass_1 = __importDefault(require("../class/AuthClass"));
 var genAuthorizeUrl = function (hassUrl, clientId, redirectUrl, state) {
@@ -54,12 +55,24 @@ exports.default = (function (req, res, next) { return __awaiter(void 0, void 0, 
     var ip, headers;
     return __generator(this, function (_a) {
         ip = req.ip, headers = req.headers;
-        if (lodash_1.default.get(headers, 'cookie') && process.env.SUPERVISOR_TOKEN) {
+        if (config_1.debugMode) {
+            next();
+            return [2 /*return*/];
+        }
+        if (lodash_1.default.get(headers, 'cookie') && config_1.isSupervisor) {
             next();
             return [2 /*return*/];
         }
         if (AuthClass_1.default.isValid(ip)) {
             next();
+            return [2 /*return*/];
+        }
+        if (config_1.isSupervisor) {
+            // todo
+            res.json({
+                error: 302,
+                data: 'http://homeassistant:8123',
+            });
         }
         else {
             res.json({

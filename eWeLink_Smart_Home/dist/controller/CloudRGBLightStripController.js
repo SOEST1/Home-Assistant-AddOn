@@ -91,8 +91,6 @@ var CloudRGBLightStripController = /** @class */ (function (_super) {
         _this.effectList = light_1.effectList;
         _this.entityId = "light." + params.deviceId;
         _this.params = params.params;
-        _this.disabled = params.disabled;
-        _this.online = params.online;
         _this.mode = _this.params.mode;
         return _this;
     }
@@ -101,10 +99,12 @@ var CloudRGBLightStripController = /** @class */ (function (_super) {
 CloudRGBLightStripController.prototype.parseHaData2Ck = function (params) {
     var state = params.state, effect = params.effect, brightness_pct = params.brightness_pct, rgb_color = params.rgb_color, color_temp = params.color_temp;
     var res = {
-        switch: state,
         mode: 1,
     };
     brightness_pct && (res.bright = brightness_pct);
+    if (state) {
+        res.switch = state;
+    }
     if (rgb_color) {
         res.colorR = rgb_color[0];
         res.colorG = rgb_color[1];

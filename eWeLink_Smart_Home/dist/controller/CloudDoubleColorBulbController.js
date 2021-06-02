@@ -68,6 +68,7 @@ var restApi_1 = require("../apis/restApi");
 var coolkit_ws_1 = __importDefault(require("coolkit-ws"));
 var lodash_1 = __importDefault(require("lodash"));
 var light_1 = require("../config/light");
+var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
 var CloudDoubleColorBulbController = /** @class */ (function (_super) {
     __extends(CloudDoubleColorBulbController, _super);
     function CloudDoubleColorBulbController(params) {
@@ -75,7 +76,6 @@ var CloudDoubleColorBulbController = /** @class */ (function (_super) {
         _this.uiid = 103;
         _this.effectList = light_1.doubleColorBulbEffectList;
         _this.entityId = "light." + params.deviceId;
-        _this.disabled = params.disabled;
         _this.params = params.params;
         return _this;
     }
@@ -132,8 +132,7 @@ CloudDoubleColorBulbController.prototype.updateLight = function (params) {
                 case 1:
                     res = _a.sent();
                     if (res.error === 0) {
-                        // todo
-                        this.params = __assign(__assign({}, this.params), params);
+                        this.params = mergeDeviceParams_1.default(this.params, params);
                         this.updateState(params);
                     }
                     return [2 /*return*/];

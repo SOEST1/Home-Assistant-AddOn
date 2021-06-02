@@ -75,7 +75,6 @@ var CloudRGBBulbController = /** @class */ (function (_super) {
         _this.effectList = light_1.rgbBulbEffectList;
         _this.entityId = "light." + params.deviceId;
         _this.params = params.params;
-        _this.disabled = params.disabled;
         return _this;
     }
     return CloudRGBBulbController;

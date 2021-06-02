@@ -59,10 +59,8 @@ var CloudSwitchController = /** @class */ (function (_super) {
     __extends(CloudSwitchController, _super);
     function CloudSwitchController(params) {
         var _this = _super.call(this, params) || this;
-        _this.uiid = 1;
         _this.entityId = "switch." + params.deviceId;
         _this.params = params.params;
-        _this.disabled = params.disabled;
         _this.uiid = params.extra.uiid;
         return _this;
     }

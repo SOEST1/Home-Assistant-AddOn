@@ -67,6 +67,7 @@ var lodash_1 = __importDefault(require("lodash"));
 var lanDeviceApi_1 = require("../apis/lanDeviceApi");
 var restApi_1 = require("../apis/restApi");
 var light_1 = require("../config/light");
+var mergeDeviceParams_1 = __importDefault(require("../utils/mergeDeviceParams"));
 var LanDeviceController_1 = __importDefault(require("./LanDeviceController"));
 var LanDoubleColorLightController = /** @class */ (function (_super) {
     __extends(LanDoubleColorLightController, _super);
@@ -150,7 +151,8 @@ LanDoubleColorLightController.prototype.updateLight = function (params) {
                     _a.label = 4;
                 case 4:
                     if (lodash_1.default.get(res, ['data', 'error']) === 0) {
-                        // todo
+                        this.params = mergeDeviceParams_1.default(this.params, params);
+                        this.updateState(params);
                     }
                     _a.label = 5;
                 case 5: return [2 /*return*/, -1];

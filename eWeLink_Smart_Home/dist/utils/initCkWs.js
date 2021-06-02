@@ -68,8 +68,11 @@ var CloudDualR3Controller_1 = __importDefault(require("../controller/CloudDualR3
 var LanDualR3Controller_1 = __importDefault(require("../controller/LanDualR3Controller"));
 var CloudDW2WiFiController_1 = __importDefault(require("../controller/CloudDW2WiFiController"));
 var CloudUIID104Controller_1 = __importDefault(require("../controller/CloudUIID104Controller"));
-var ZigbeeUIID3026Controller_1 = __importDefault(require("../controller/ZigbeeUIID3026Controller"));
-var ZigbeeUIID2026Controller_1 = __importDefault(require("../controller/ZigbeeUIID2026Controller"));
+var CloudZigbeeUIID1770Controller_1 = __importDefault(require("../controller/CloudZigbeeUIID1770Controller"));
+var CloudZigbeeUIID2026Controller_1 = __importDefault(require("../controller/CloudZigbeeUIID2026Controller"));
+var CloudZigbeeUIID3026Controller_1 = __importDefault(require("../controller/CloudZigbeeUIID3026Controller"));
+var CloudZigbeeUIID1000Controller_1 = __importDefault(require("../controller/CloudZigbeeUIID1000Controller"));
+var CloudCoverController_1 = __importDefault(require("../controller/CloudCoverController"));
 var apikey = dataUtil_1.getDataSync('user.json', ['user', 'apikey']);
 exports.default = (function () { return __awaiter(void 0, void 0, void 0, function () {
     var at, region;
@@ -142,7 +145,7 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                     if (device instanceof CloudMultiChannelSwitchController_1.default) {
                                         switches = tmp.params.switches;
                                         if (Array.isArray(switches)) {
-                                            device.updateState(switches.slice(0, device.maxChannel));
+                                            device.updateState(switches);
                                         }
                                     }
                                     if (device instanceof CloudRGBLightStripController_1.default) {
@@ -169,14 +172,32 @@ exports.default = (function () { return __awaiter(void 0, void 0, void 0, functi
                                             device.updateState(tmp.params);
                                         }
                                     }
-                                    if (device instanceof ZigbeeUIID2026Controller_1.default) {
+                                    if (device instanceof CloudZigbeeUIID1000Controller_1.default) {
+                                        console.log('接收到Zigbee无线按键的信息：', tmp.params);
+                                        if (tmp.params) {
+                                            device.updateState(tmp.params);
+                                        }
+                                    }
+                                    if (device instanceof CloudZigbeeUIID1770Controller_1.default) {
+                                        console.log('接收到Zigbee温湿度传感器的信息：', tmp.params);
+                                        if (tmp.params) {
+                                            device.updateState(tmp.params);
+                                        }
+                                    }
+                                    if (device instanceof CloudZigbeeUIID2026Controller_1.default) {
                                         console.log('接收到Zigbee移动传感器的信息：', tmp.params);
                                         if (tmp.params) {
                                             device.updateState(tmp.params);
                                         }
                                     }
-                                    if (device instanceof ZigbeeUIID3026Controller_1.default) {
+                                    if (device instanceof CloudZigbeeUIID3026Controller_1.default) {
                                         console.log('接收到Zigbee门磁的信息：', tmp.params);
+                                        if (tmp.params) {
+                                            device.updateState(tmp.params);
+                                        }
+                                    }
+                                    if (device instanceof CloudCoverController_1.default) {
+                                        console.log('接收到电动窗帘的信息：', tmp.params);
                                         if (tmp.params) {
                                             device.updateState(tmp.params);
                                         }

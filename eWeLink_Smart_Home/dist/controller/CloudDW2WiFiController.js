@@ -61,7 +61,6 @@ var CloudDW2WiFiController = /** @class */ (function (_super) {
         _this.uiid = 102;
         _this.entityId = "binary_sensor." + params.deviceId;
         _this.params = params.params;
-        _this.disabled = params.disabled;
         _this.online = true;
         _this.lowVolAlarm = params.devConfig.lowVolAlarm;
         return _this;

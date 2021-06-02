@@ -48,6 +48,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var restApi_1 = require("../apis/restApi");
+var auth_1 = require("../config/auth");
+var config_1 = require("../config/config");
 var dataUtil_1 = require("../utils/dataUtil");
 var AuthClass = /** @class */ (function () {
     function AuthClass() {
@@ -65,8 +67,12 @@ var AuthClass = /** @class */ (function () {
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
+                        if (config_1.debugMode) {
+                            this.curAuth = auth_1.HaToken;
+                            return [2 /*return*/];
+                        }
                         // 通过Addon方式安装自带TOKEN
-                        if (process.env.SUPERVISOR_TOKEN) {
+                        if (config_1.isSupervisor) {
                             this.curAuth = process.env.SUPERVISOR_TOKEN;
                             return [2 /*return*/];
                         }
@@ -106,9 +112,6 @@ var AuthClass = /** @class */ (function () {
         });
     };
     AuthClass.prototype.isValid = function (host) {
-        if (process.env.SUPERVISOR_TOKEN) {
-            return true;
-        }
         var auth = AuthClass.AuthMap.get(host);
         if (auth && auth.expires_time > Date.now()) {
             this.curAuth = auth.access_token;
@@ -136,6 +139,11 @@ var AuthClass = /** @class */ (function () {
                         auth = AuthClass.AuthMap.get(origin);
                         if (!auth) return [3 /*break*/, 2];
                         cliend_id = auth.cliend_id, refresh_token = auth.refresh_token;
+                        // supervisor形式不需要刷新token,token到期了直接删除
+                        if (config_1.isSupervisor) {
+                            AuthClass.AuthMap.delete(origin);
+                            return [2 /*return*/];
+                        }
                         console.log('refreshing...');
                         return [4 /*yield*/, restApi_1.refreshAuth(cliend_id, refresh_token)];
                     case 1:

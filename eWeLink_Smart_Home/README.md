@@ -17,3 +17,18 @@ switch:
 ```
 
 保存成功后重启 HomeAssistant 即可
+
+```
+cover:
+  - platform: template
+    covers:
+      ewelink_virtual_cover:
+        open_cover:
+          service: cover.open_cover
+        close_cover:
+          service: cover.close_cover
+        stop_cover:
+          service: cover.stop_cover
+        set_cover_position:
+          service: cover.set_cover_position
+```

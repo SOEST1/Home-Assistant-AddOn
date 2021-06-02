@@ -41,7 +41,7 @@ exports.default = (function () {
                 var decryptData = device.parseEncryptedData();
                 if (decryptData) {
                     device.updateState(decryptData.switch);
-                    device.params = decryptData;
+                    device.params = mergeDeviceParams_1.default(device.params, decryptData);
                 }
             }
             if (device instanceof LanMultiChannelSwitchController_1.default || device instanceof LanDualR3Controller_1.default) {

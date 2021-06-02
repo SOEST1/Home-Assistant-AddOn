@@ -187,7 +187,7 @@ var updateLanLight = function (params) { return __awaiter(void 0, void 0, void 0
                     return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0:
-                                console.log('控制局域网单通道设备出错', reqData);
+                                console.log('控制局域网灯设备出错', reqData);
                                 return [4 /*yield*/, coolkit_ws_1.default.updateThing({
                                         deviceid: deviceid,
                                         ownerApikey: selfApikey,

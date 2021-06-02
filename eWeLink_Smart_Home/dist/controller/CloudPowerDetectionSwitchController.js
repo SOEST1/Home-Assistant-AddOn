@@ -74,9 +74,7 @@ var CloudPowerDetectionSwitchController = /** @class */ (function (_super) {
         var _this = _super.call(this, params) || this;
         _this.entityId = "switch." + params.deviceId;
         _this.params = params.params;
-        _this.disabled = params.disabled;
         _this.uiid = params.extra.uiid;
-        _this.online = params.online;
         _this.rate = +dataUtil_1.getDataSync('rate.json', [_this.deviceId]) || 0;
         return _this;
         // // 如果电流电压功率有更新就通知我
