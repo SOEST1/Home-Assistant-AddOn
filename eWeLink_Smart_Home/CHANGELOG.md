@@ -6,17 +6,17 @@
 -   优化卡片渲染和布局
 -   修复部分设备控制问题，优化体验
 -   **以下设备目前仅同步到 HomeAssistant，WebUI 暂不展示**
--   支持 ZigBee 温湿度传感器
--   支持 ZigBee 门磁传感器
--   支持 ZigBee 移动传感器
--   支持 ZigBee 灯控制器
--   支持 ZigBee 无线按键
--   支持 ZigBee 插座
--   支持 WiFi 门磁
--   支持电动窗帘
--   支持律动灯带
--   支持五色灯
--   支持双色灯
+    -   ZigBee 温湿度传感器
+    -   ZigBee 门磁传感器
+    -   ZigBee 移动传感器
+    -   ZigBee 灯控制器
+    -   ZigBee 无线按键
+    -   ZigBee 插座
+    -   WiFi 门磁
+    -   电动窗帘
+    -   律动灯带
+    -   五色灯
+    -   双色灯
 
 ## v2.1.1-beta
 
