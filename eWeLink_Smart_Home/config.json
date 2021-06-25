@@ -1,6 +1,6 @@
 {
     "name": "eWeLink Smart Home",
-    "version": "2.2.0-beta",
+    "version": "2.3.0-beta",
     "slug": "ewelink_smart_home_slug",
     "description": "connect eWeLink with home-assistant",
     "arch": [
@@ -20,6 +20,7 @@
     "ports_description": {
         "3000/tcp": "Web interface"
     },
+    "init": false,
     "panel_icon": "mdi:earth",
     "panel_title": "eWeLink Smart Home",
     "hassio_api": true,
