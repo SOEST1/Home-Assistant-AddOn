@@ -16,7 +16,9 @@ switch:
 
 ```
 
-保存成功后重启 HomeAssistant 即可
+---
+
+-   如果遇到`Failed to call service cover.open_cover. Service not found.`的问题。建议使用 HomeAssistant 自带的 Addon`File editor`编辑`configuration.yaml`。在文件尾部追加以下内容：
 
 ```
 cover:
@@ -32,3 +34,5 @@ cover:
         set_cover_position:
           service: cover.set_cover_position
 ```
+
+保存成功后重启 HomeAssistant 即可
