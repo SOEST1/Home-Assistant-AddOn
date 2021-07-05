@@ -1,5 +1,9 @@
 # Change Log
 
+## v1.0.0
+
+-   修复已知问题
+
 ## v2.3.0-beta
 
 -   修复了温湿度传感器同步到 HomeAssistant 失败的问题
