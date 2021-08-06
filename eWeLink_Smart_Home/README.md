@@ -16,8 +16,6 @@ switch:
 
 ```
 
----
-
 -   如果遇到`Failed to call service cover.open_cover. Service not found.`的问题。建议使用 HomeAssistant 自带的 Addon`File editor`编辑`configuration.yaml`。在文件尾部追加以下内容：
 
 ```
